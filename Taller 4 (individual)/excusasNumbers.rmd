@@ -1,0 +1,373 @@
+---
+title: "Analisis Encuesta"
+author: "Jean Paul"
+date: "9/7/2020"
+output: 
+  html_document:
+    toc: true
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
+```
+
+```{r}
+library(readxl)
+datosEncuesta <- read_excel("Numb3rs_depuradaCorregida_anonimizada.xlsx")
+```
+
+
+# Introducción
+
+En el año 2020, semestre 2, se dejó una actividad de ver el primer episodio de la aclamada serie numb3rs, el presente informe
+es una ánalisis descriptivo y exploratorio de una encuesta realizada sobre aquella actividad. 
+
+# Análisis descriptivo de las personas que vieron el primer episodio
+
+## Análisis
+
+Con base en los datos, se puede ver que un 60% realizaron la tarea y vieron el primer episodio de la temporada numb3rs,
+despues se profundizará en las razones por las cuales algunos no hicieron la tarea, pero el balance de la primera tarea es 
+postivo debido a que la mayoría hizo la tarea.
+
+## Tabla de frecuencias de personas que vieron el primer episodio de la temporada Numb3rs
+
+```{r}
+tablaVieronPrimerEpisodio <- table(datosEncuesta$`¿Vió el primer episodio de la primera temporada de Numb3rs?`)
+print(tablaVieronPrimerEpisodio)
+```
+
+## Porcentaje de personas que vieron el primer episodio de la temporada Numb3rs
+
+```{r}
+totalVieronPrimerEpisodio <- sum(tablaVieronPrimerEpisodio)
+porcentajeVieronPrimerEpisodio = round(tablaVieronPrimerEpisodio/sum(tablaVieronPrimerEpisodio) * 100, 2)
+
+print(porcentajeVieronPrimerEpisodio)
+```
+
+## Gráfica personas que vieron el primer episodio de la temporada Numb3rs
+
+```{r}
+barplot(tablaVieronPrimerEpisodio, main = "Personas que vieron el primer epsodio", ylim = c(0,80), col = c("#FF4E5A", "#60A665" ))
+
+```
+
+
+# Análisis descriptivo del ejemplo de Charlie
+
+## Análisis
+
+Prácticamente todos respondieron que el ejemplo que uso Charlie para convencer a su hermano fue la regadera,
+solo hubo tres personas que tuvieron una respuesta completamente diferente que no tiene nada que ver 
+con la regadera. 
+
+## Tabla de frecuencias del ejemplo charlie
+
+```{r}
+ejemplo_charlie <- table(datosEncuesta$Ejemplo_Charlie)
+print(ejemplo_charlie)
+```
+
+## Gráfica personas que vieron el primer episodio de la serie Numb3rs
+
+```{r}
+barplot(ejemplo_charlie, 
+        cex.names = 0.7, 
+        col = c("#FF4E5A", "#FF4E5A", "#FF4E5A", "#60A665"),
+        ylim = c(0,70),
+        main = "Personas que vieron el primer episodio de la serie Numb3rs"
+)
+```
+
+# Análisis excusas
+
+## Análisis
+
+Las personas que no vieron el episodio fue debido a que tuvieron problemas de conectividad y que ignoraban a que debían ver el video,
+las razones por las que ignoraban puede ser debido a que no leyeron el correo en donde se daba la indicación de ver el capitulo. El resto de los que no hicieron la tarea se dee a razones personales.
+
+En la reclasificación que realizé propuse reducir las categorías y eliminar las personas que no contestaron la pregunta, eliminé las 
+personas que no la contestaron porque no ayudan al analisis de esta variable y poder enfocarme en las razones que los estudiantes pusieron. Combinando algunas filas llegue a una tabla en donde solo estan los motivos laborales, academicos, personales y otras 
+tres excusas representativas: problemas técnicos, ignoraban que había que ver el video y no revisar el correo. Los problemas técnicos es una nueva excusa que junta los problemas con el computador o el internet. 
+
+Con esta reclasificación podemos ver que los dos factores mas importantes por las cuales las personas no vieron el capitulo fue
+por los problemas con su computador y que no se enteraron de la actividad. 
+
+## Tabla excusas
+
+```{r}
+excusas <- with(datosEncuesta, c(Excusa01,Excusa02,Excusa03))
+tablaExcusas <- sort(table(excusas))
+print(tablaExcusas)
+```
+
+## Grafica excusas
+
+```{r}
+par(mar=c(4,15,4,4))
+barplot(tablaExcusas, 
+        main = "Excusas de las personas que no vieron el capitulo",
+        cex.names = 0.8, 
+        xlim = c(0,20),
+        space=1, 
+        las= 2, 
+        horiz=T,
+        col = c("#84EDF9", "#84EDF9","#84EDF9","#84EDF9", "#8CF3C4", "#8CF3C4",  
+                "#8CF3C4", "#8CF3C4", "#74DBCA", "#74DBCA", "#74DBCA", "#74DBCA" )
+        )
+
+```
+
+## Reclasficación excusas
+
+
+```{r}
+library(tidyverse) #Cargo esta librera
+excusasReclasificadas <- as.data.frame(tablaExcusas, stringsAsFactors=FALSE)  
+excusasReclasificadas <- excusasReclasificadas[-c(4),] #Eliminar N/N
+excusasReclasificadas[2,2] =  excusasReclasificadas[8,2] + excusasReclasificadas[2,2] # Juntar las excusas de no revisar correo
+excusasReclasificadas <- excusasReclasificadas[-c(8),] #Eliminar excusa sobrante
+excusasReclasificadas[10,2] = excusasReclasificadas[10,2] + excusasReclasificadas[5,2] # Juntar excusas del computador e internet
+excusasReclasificadas[10,1] <- 'Problemas técnicos'; # Renombrar esas excusas como excusas tecnicas
+excusasReclasificadas <- excusasReclasificadas[-c(5),] # Quitar uso del computador
+excusasReclasificadas[7,2] = excusasReclasificadas[7,2] + excusasReclasificadas[3,2]  #Agregar excusa de salud a cuestiones personales
+excusasReclasificadas <- excusasReclasificadas[-c(3),] #Quitar fila de excusa de salud
+excusasReclasificadas[4,2] = excusasReclasificadas[4,2] + excusasReclasificadas[3,2]   #Agregar excusas de inscripcion a academicas
+excusasReclasificadas <- excusasReclasificadas[-c(3),] #Quitar fila de inscripicion
+excusasReclasificadas[5,2] = excusasReclasificadas[1,2] + excusasReclasificadas[5,2]   #Agregar excusas de tiempo a personales
+excusasReclasificadas <- excusasReclasificadas[-c(1),] #Quitar fila de excusas de tiempo
+excusasReclasificadas = excusasReclasificadas[order(excusasReclasificadas$Freq),] #Ordernar por frecuencia
+print(excusasReclasificadas)
+```
+
+## Gráfica excusas reclasificadas
+
+```{r}
+par(mar=c(4,12,4,4))
+barplot(excusasReclasificadas$Freq, 
+        names.arg=excusasReclasificadas$excusas, 
+        cex.names = 0.8, 
+        xlim = c(0,25),
+        las = 2, 
+        horiz = T,
+        col = c("#98CAF5","#8AE6F2","#8CF3C4","#88DBAB", "#B0F28A","#E8E184"),
+        main = "Excusas reclasificadas"
+)
+
+```
+
+# Análisis sobre las acciones para atrapar al asesino 
+
+## Análisis
+
+Sobre las acciones para encontrar al asesino hay dos estrategías propuestas: llegar al lugar donde vive el asesino 
+y la otra es encontrar el punto preferido donde el asesinoopera, ambos con base en los lugares en donde
+han encontrado sus victimas, la mayoría respondió que Charlie quería encontrar el lugar donde vivía pero la 
+diferencia con la otra respuesta no es tan grande en otras graficas. Adicionalmente se eliminaron dos personas
+que no respondieron la pregunta, para solo dejar las respuestas válidas. 
+
+## Tabla pregunta Charlie depurada
+
+```{r}
+tablaCharlieDepurada <- table(datosEncuesta$PreguntaCharliedepurada)
+tablaCharlieDepurada <- tablaCharlieDepurada[c("A traves de las matematicas generar una ecuacion para lograr su ubicación","Encontrar una zona de vivienda o de concurrencia del asesino")]
+print(tablaCharlieDepurada)
+```
+
+## Gráfica de la pregunta Charlie depurada
+
+```{r}
+barplot(main="Gráfica de la pregunta Charlie depurada", 
+        tablaCharlieDepurada,
+        cex.names = 0.5,
+        ylim = c(0,50),
+        border = F,
+        col = c("#8CF3C4", "#79BCDB"))
+```
+
+# Análisis de la técnica de Charlie
+
+## Análisis
+
+En una parte del capítulo Charlie establece una técnica para atrapar al asesino, se le preguntó a los estudiantes 
+¿cual era la técnica que Charlie uso para atrapar al asesino?.
+
+A diferencia de la variable anterior, en esta variable podemos ver claramente que los agujeros negros es la respuesta que 
+la mayoría eligió , y que la siguiente respuesta que es el punto de origen esta muy lejos de la cantidad de personas que 
+respondieron la gran parte de los estudiantes.
+
+En la reclasificación que yo puse, decidí eliminar los que no respondieron y solo dejar las respuestas: agujeros negros y 
+punto de origen, las demas variables decidí renombrarlas bajo el nombre de otros ya que no hay un elemento común fuera de
+las otras dos respuestas.
+
+
+## Tabla de la técnica de Charlie
+
+```{r}
+tablaCharlieTecnicaDepurada <- table(datosEncuesta$Charlietecnicadepurada)
+print(tablaCharlieTecnicaDepurada)
+```
+
+## Grafica de la técnica de Charlie
+
+```{r}
+par(mar=c(4,2,4,0))
+barplot(tablaCharlieTecnicaDepurada, 
+        cex.names = 0.6, 
+        space = 0,
+        col = c("#8CF3C4","#94F26D","#79BCDB","#FFF470"),
+        border = F,
+        ylim = c(0,50)
+        )
+```
+
+## Reclasificación de la técnica de Charlie
+
+```{r}
+tecnicasReclasificadas <- as.data.frame(tablaCharlieTecnicaDepurada, stringsAsFactors=FALSE)  
+tecnicasReclasificadas <- tecnicasReclasificadas[-c(7),] #Quitar N/N
+tecnicasReclasificadas[1,2] = tecnicasReclasificadas[1,2] + tecnicasReclasificadas[2,2] # Poner respuestas de agujeros negros en una sola variable
+tecnicasReclasificadas <- tecnicasReclasificadas[-c(2),] #Quitar fila de agujeros negros y punto de origen
+tecnicasReclasificadas[2,2] = tecnicasReclasificadas[2,2] + tecnicasReclasificadas[3,2] + tecnicasReclasificadas[5,2] #Juntar las respuestas de distribucion normal, asesino e invertir bajo el nombre de otros 
+tecnicasReclasificadas <- tecnicasReclasificadas[-c(5),] #Eliminar la fila invertir tiempo
+tecnicasReclasificadas <- tecnicasReclasificadas[-c(3),] #Eliminar fila el asesino
+tecnicasReclasificadas[2,1] = "Otros" #Cambiar nombre de distribucion normal a otros 
+tecnicasReclasificadas = tecnicasReclasificadas[order(decreasing = TRUE, tecnicasReclasificadas$Freq),]
+print(tecnicasReclasificadas)
+```
+
+# Análisis de la razon por la cual no cogieron al asesino
+
+## Análisis
+
+En esta variable la mayoría de los estudiantes estan de acuerdo que la razón por la cual no se encontro al asesino en el primer
+intento fue porque solo usaron un foco, pero otra razón en el que los estudiantes pensaron que no pasó fue que el asesino
+se había mudado recientemente. 
+
+En la reclasificación de estas variables, separe algunas razones que incluían dos razones como: el asesino se habia mudado
+recientemente y no había tenido en cuenta el otro foco. Se sumo estas razon a el asesino se había mudad y se sumo 
+a que no había tenido en cuenta el otro foco, de esa manera tener solamente tener razones atomicas y analizar como v
+cambiaban los resultados.
+
+Se redujeron las variables a cinco y como un cambio significativo se nota que hay una reducción de la diferencia entre las
+dos mayores razones que eran el foco y la mudanza del asesino, lo que signifca que tal vez la razón por la cual no cogieron
+al asesino fue debido a estos dos factores y que la victima mintió.
+
+## Tabla de la razon por la cual no cogieron al asesino
+
+```{r}
+tablaRazonDepurada <- table(datosEncuesta$Razondepurada)
+print(tablaRazonDepurada)
+```
+
+
+## Grafica de la razon por la cual no cogieron al asesino
+
+```{r}
+par(mar=c(4,15,2,1))
+barplot(tablaRazonDepurada, cex.names = 0.5, space = 1.5, las= 2, horiz=T, xlim=c(0,35), col = c("#8CF3C4"), border = F, 
+        main = "Razones por las cuales no cogieron al asesino")
+```
+
+## Reclasificación de la razon por la cual no cogieron al asesino
+
+```{r}
+razonReclasificadas <- as.data.frame(tablaRazonDepurada, stringsAsFactors=FALSE)  
+razonReclasificadas[1,2] = razonReclasificadas[1,2] + razonReclasificadas[2,2] #Unir respuestas de mudanza
+razonReclasificadas[6,2] = razonReclasificadas[3,2] + razonReclasificadas[6,2] #Unir datos erroneos de la victima
+razonReclasificadas[3,2] = razonReclasificadas[2,2] + razonReclasificadas[3,2] #Unir respuestas de dos focos
+razonReclasificadas[3,1] = "No tuvo en cuenta los dos focos" #Cambiar nombre de fila a dos focos
+razonReclasificadas <- razonReclasificadas[-c(2),] #Eliminar respuesta de mudanza adicional y dos focos
+
+razonReclasificadas = razonReclasificadas[order(decreasing = TRUE, razonReclasificadas$Freq),]
+print(razonReclasificadas)
+
+
+```
+
+
+# Análisis de la pregunta sobre cada cuanto un policía ganara la loteria
+
+## Análisis
+
+En este caso la mayoría de los estudiantes concluyeron que cada 40.000 o 100.000 años se podría a ganar la lotería 
+el agente del FBI, los demas estudiantes que no estan en este grupo concluyeron cifras muy diferentes que varían desde 0
+hasta un millón. Para poder graficar adecuadamente esta variable se usaron dos graficas con la misma escala en el eje vertical, 
+pero diferente en el horizontal para poder ver las diferentes respuestas que se obtuvieron.
+
+
+## Tabla
+
+```{r}
+library(tidyverse) 
+aniosLoteria <- as.integer( datosEncuesta$`¿Cada cuántos años se podría ganar una vez la lotería el agente del FBI?`)
+aniosLoteria = na.omit(aniosLoteria)
+summary(aniosLoteria)
+
+```
+
+## Gráfica
+
+```{r}
+options(scipen = 999)    
+hist(aniosLoteria,breaks=100, 
+     main = "Años en la que se espera ganar la lotería",
+     xlab = "Años loteria",
+     ylab = "Frecuencia",
+     col = c("#E7FFAC"),
+     border = F,
+     xlim=c(0, 100000), 
+     ylim = c(0,60),
+     las = 2)
+```
+
+```{r}
+options(scipen =99)    
+hist(aniosLoteria,breaks=5, 
+     main = "Años en la que se espera ganar la lotería",
+     xlab = "Años",
+     ylab = "Frecuencia",
+     col = c("#E7FFAC"),
+     border = F,
+     xlim=c(100000,1000000), 
+     las = 2)
+```
+
+
+# Recomendaciones 
+
+Para la proxima actividad se recomienda comunicar mejor a los estudiantes lo que se debe realizar, para esto se podría
+poner un anuncio en la página del moodle del curso o decir la actividad reiteradamente en clase, debido a que el curso
+esta medido por la virtualidad es importante sobrecomunicar ya que uno debe asegurar que el mensaje llegue adecuadamente
+a todos los que estan en el curso, esto tambien debido a que como se evidenció en la excusas algunos todavía presentan problemas
+de conectividad o con sus computadores. 
+
+# Conclusiones 
+
+Debido a estos datos podemos evidenciar algunos de los retos que se tienen al dictar un curso virtualmente como la comunicación 
+con los estudiantes o problemas técnicos con los dispositivos. A pesar de estas dificultades se evidencia que hay una buena 
+participación en el curso mas de 100 personas contestaron la encuesta y un 60% realizaron la actividad, reconociendo la oprotunidad
+de mejora, el proximo curso se esperaría que más personas realicen la actividad.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
