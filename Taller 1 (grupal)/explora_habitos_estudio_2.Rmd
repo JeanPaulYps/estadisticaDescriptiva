@@ -1,0 +1,146 @@
+---
+title: "Encuesta sobre hábitos de estudio 2"
+author: "Kenneth Roy Cabrera Torres"
+date: "Miércoles, 9 de septiembre de 2020"
+output: 
+  html_document: 
+    toc: yes
+    theme: journal
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
+```
+
+```{r}
+enc_habit <- read.csv2("Encuesta_habitos.csv", 
+                       encoding = "UTF-8",
+                       dec = ".")
+```
+
+
+```{r}
+enc_habit$estrato <- as.factor(enc_habit$estrato)
+```
+
+## Estadísticos descriptivos básicos del PAPA.
+
+```{r}
+summary(enc_habit$PAPA)
+```
+
+## Diagrama de caja y bigotes del PAPA.
+
+```{r}
+bxp1 <- boxplot(enc_habit$PAPA, notch = TRUE, horizontal = TRUE,
+                col = "lightblue")
+title(main = "Distribución del PAPA", font = 2, 
+      xlab = "Promedio Académico Ponderado Acumulado")
+points(mean(enc_habit$PAPA, na.rm = TRUE), 1, col = "red", pch = 19, cex =2)
+legend(4.2, 1.5, legend = c("Promedio"), pch = 19, col = "red")
+```
+
+## Histograma de frecuencia del PAPA.
+
+### Histograma básico.
+
+```{r}
+hist(enc_habit$PAPA)
+```
+
+### Histograma definitivo.
+
+```{r}
+param_ant <- par(no.readonly = TRUE)
+par(mar = param_ant$mar + c(0, 2, 0, 0))
+plot(c(3, 5), c(0, 20), type = "n", xlab = "", ylab = "",
+     las = 1)
+title(main = "Distribución del PAPA",
+     xlab = "Promedio Académico Ponderado Acumulado",
+     ylab = "Número de estudiantes\n(frecuencia absoluta)")
+abline(h = seq(0, 20, 5), col = "gray10", lty = 3)
+hist(enc_habit$PAPA, nclass = 20,
+     col = "lightblue",
+     add = TRUE)
+par(param_ant)
+```
+
+### Histograma con la superposición de la estimación de la densidad.
+
+```{r}
+hist(enc_habit$PAPA, freq = FALSE, breaks = 20,
+     col = "#aecdc2", main = "", xlab = "", ylab = "",
+     las = 1,
+     ylim = c(0, 2))
+title(main = "Distribución del PAPA",
+     xlab = "Promedio Académico Ponderado Acumulado",
+     ylab = "Densidad")
+lines(density(enc_habit$PAPA, na.rm = TRUE), 
+      col = "blue", lwd = 2)
+abline(v = mean(enc_habit$PAPA, na.rm = TRUE),
+       lty = 3, col = "red", lwd = 2)
+```
+
+```{r}
+with(enc_habit, boxplot(PAPA ~ habito_1))
+```
+
+
+```{r, fig.height=7, fig.width=8}
+habitos_1 <- tapply(enc_habit$PAPA, enc_habit$habito_1, mean, na.rm = TRUE)
+
+param_ant <- par(no.readonly = TRUE)
+par(mar = param_ant$mar + c(16, 10, 0, 0),
+    las = 2,
+    xaxt="n",
+    yaxt="n")
+with(enc_habit, boxplot(PAPA ~ habito_1,
+                        xlab = "",
+                        notch = TRUE,
+                        varwidth = TRUE))
+title(main = "Comportamiento del PAPA vs primer hábito de estudio")
+text(1:length(habitos_1),
+      par("usr")[3] - 0.2,
+     labels = names(habitos_1),
+     srt = 45,
+     pos = 2,
+     xpd = TRUE)
+text(par("usr")[1] - 0.4,
+     seq(3, max(enc_habit$PAPA, na.rm = TRUE), 0.2),
+     labels = formatC(seq(3, max(enc_habit$PAPA, na.rm = TRUE), 0.2),
+                      digits = 1,
+                      width = 3,
+                      format = "f",
+                      flag = "0"),
+     xpd = TRUE)
+axis(side = 2, at = seq(3, max(enc_habit$PAPA, na.rm = TRUE), 0.2))
+mtext("Primer hábito de estudio", 
+      las = 1, 
+      side = 1, line = 20)
+abline(h = mean(enc_habit$PAPA, na.rm = TRUE),
+       col = "blue")
+par(param_ant)
+```
+
+## Distribución por género.
+
+### Tablas separadas.
+
+```{r}
+tabla_gen <-  table(enc_habit$genero)
+tabla_gen
+```
+```{r}
+frec_rel <- tabla_gen/sum(tabla_gen) * 100
+frec_rel
+```
+### Tabla conjunta.
+
+```{r}
+tabla_total <- rbind(tabla_gen, frec_rel)
+tabla_total
+```
+
+

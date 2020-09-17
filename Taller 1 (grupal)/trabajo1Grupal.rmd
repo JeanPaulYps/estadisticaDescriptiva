@@ -1,0 +1,74 @@
+---
+title: "Encuesta sobre hábitos de estudio"
+author: "Jean Paul Yepes"
+date: "16 de septiembre de 2020"
+output: 
+  html_document: 
+    toc: yes
+    #theme: journal
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
+```
+
+```{r}
+datosEncuesta <- read.csv2("Encuesta_habitos.csv", 
+                       encoding = "UTF-8",
+                       dec = ".",
+                       stringsAsFactors = FALSE)
+```
+
+```{r}
+carreras <- datosEncuesta$carrera
+summary(as.factor(carreras))
+```
+
+```{r}
+library(stringr)
+carreras <- str_replace(carreras, regex("est.*", ignore_case = TRUE ), "Estadistica")
+carreras <- str_replace(carreras, regex(".*sis.*", ignore_case = TRUE ), "Ingenieria de sistemas")
+carreras <- str_replace(carreras, regex(".*fís.*", ignore_case = TRUE ), "Ingenieria fisica")
+carreras <- str_replace(carreras, regex(".*adm.*", ignore_case = TRUE ), "Ingenieria administrativa")
+carreras <- str_replace(carreras, regex(".*con.*", ignore_case = TRUE ), "Ingenieria de control")
+carreras <- str_replace(carreras, regex(".*industrial.*", ignore_case = TRUE ), "Ingenieria industrial")
+```
+
+```{r}
+computadorPropio <- datosEncuesta$computador_mesa
+summary(as.factor(computadorPropio) )
+```
+
+```{r}
+computadorPropio <- datosEncuesta$computador_mesa
+summary(as.factor(computadorPropio) )
+```
+
+```{r}
+computadorPropio <- str_replace(computadorPropio, regex("si.*", ignore_case = TRUE ), "Si")
+summary(as.factor(computadorPropio) )
+```
+
+```{r}
+origenCovid <- datosEncuesta$origen_covid_19
+origenCovid <- na.omit(origenCovid)
+summary(as.factor(origenCovid) )
+```
+
+
+```{r}
+library(dplyr)
+habitos <- datosEncuesta %>% select(starts_with("habito"))
+head(habitos)
+```
+```{r}
+#vect <- unlist(habitos)
+vect <- unlist(data.frame(C1 = c(t(habitos)))['C1'] )
+#class(vect)
+summary(vect)
+```
+
+
+
