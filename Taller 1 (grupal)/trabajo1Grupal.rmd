@@ -37,19 +37,30 @@ carreras <- str_replace(carreras, regex(".*industrial.*", ignore_case = TRUE ), 
 ```
 
 ```{r}
-computadorPropio <- datosEncuesta$computador_mesa
-summary(as.factor(computadorPropio) )
+datosEncuesta$carrera = carreras
+head(datosEncuesta)
 ```
 
 ```{r}
 computadorPropio <- datosEncuesta$computador_mesa
 summary(as.factor(computadorPropio) )
 ```
+
 
 ```{r}
 computadorPropio <- str_replace(computadorPropio, regex("si.*", ignore_case = TRUE ), "Si")
 summary(as.factor(computadorPropio) )
 ```
+```{r}
+datosEncuesta$computador_mesa = computadorPropio
+print(head(datosEncuesta))
+```
+
+```{r}
+library(tidyr)
+datosEncuesta <- separate(datosEncuesta, col = portatil, into = c("portatil", "De donde"), sep = ",")
+```
+
 
 ```{r}
 origenCovid <- datosEncuesta$origen_covid_19
@@ -68,7 +79,12 @@ head(habitos)
 vect <- unlist(data.frame(C1 = c(t(habitos)))['C1'] )
 #class(vect)
 summary(vect)
+summary(na.omit(vect))
 ```
 
+```{r}
+
+
+```
 
 
