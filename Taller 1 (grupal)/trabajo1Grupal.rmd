@@ -83,8 +83,29 @@ summary(na.omit(vect))
 ```
 
 ```{r}
+fecha_nac1 <- as.Date(datosEncuesta$fecha_nac, "%d/%m/%Y")
+fechas_con_problemas <- subset(datosEncuesta, 
+                               subset = is.na(fecha_nac1) | 
+                                 as.integer(format(fecha_nac1, "%Y")) < 1970, 
+                               select = c("consecutivo", "fecha_nac"))
+
+fechas_con_problemas$fecha_nac_correcta <- c("05/09/1999", "08/10/1996",
+                                             "06/03/2020", "01/07/1994",
+                                             "01/01/2000", "07/10/2003",
+                                             "17/09/1992", "12/08/2020",
+                                             "12/05/1998", "21/06/1983",
+                                             "12/08/2020", "28/09/1956",
+                                             "09/06/1999", "10/09/2002",
+                                             "20/06/1994")
 
 
+print(fechas_con_problemas$fecha_nac_correcta)
+
+datosEncuesta$fecha_nac[fechas_con_problemas$consecutivo] <- fechas_con_problemas$fecha_nac_correcta
 ```
 
 
+```{r}
+#enc_habit$fecha_nac <- as.Date(enc_habit$fecha_nac)
+#summary(enc_habit)
+```
