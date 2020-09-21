@@ -13,6 +13,11 @@ knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE,
                       warning = FALSE)
 ```
+```{r}
+library(stringr)
+library(tidyr)
+library(dplyr)
+```
 
 ```{r}
 datosEncuesta <- read.csv2("Encuesta_habitos.csv", 
@@ -21,66 +26,119 @@ datosEncuesta <- read.csv2("Encuesta_habitos.csv",
                        stringsAsFactors = FALSE)
 ```
 
-```{r}
-carreras <- datosEncuesta$carrera
-summary(as.factor(carreras))
-```
+
+
+
+
+# Limpieza de la base de datos
+
+## Limpieza de las carreras
+
+Los nombres de las carreras en los datos no estan de una manera unificada, 
+como se puede evidenciar en la tabla 1 algunos escriben la misma carrera de modo distinto, 
+por lo que esta columna se limpiará unificando los nombres de las carreras de un solo modo.
 
 ```{r}
-library(stringr)
+carreras <- datosEncuesta$carrera
+muestraCarreras <- unique(carreras)
+muestraCarreras <- str_extract_all(muestraCarreras, regex("est.*", ignore_case = TRUE ), simplify = TRUE)
+muestraCarreras <- muestraCarreras[muestraCarreras != ""]
+knitr::kable(muestraCarreras, "simple", col.names=c("Carreras"), caption = "Tabla 1")
+```
+
+En la tabla 2 podemos ver el resultado de unificar el resultado de corregir los nombres de las carreras,
+ahora todas las carreras tienen un nombre único y no hay ambiguedad sobre las carreras que estan presentes.
+
+```{r}
 carreras <- str_replace(carreras, regex("est.*", ignore_case = TRUE ), "Estadistica")
 carreras <- str_replace(carreras, regex(".*sis.*", ignore_case = TRUE ), "Ingenieria de sistemas")
 carreras <- str_replace(carreras, regex(".*fís.*", ignore_case = TRUE ), "Ingenieria fisica")
 carreras <- str_replace(carreras, regex(".*adm.*", ignore_case = TRUE ), "Ingenieria administrativa")
 carreras <- str_replace(carreras, regex(".*con.*", ignore_case = TRUE ), "Ingenieria de control")
 carreras <- str_replace(carreras, regex(".*industrial.*", ignore_case = TRUE ), "Ingenieria industrial")
+
+datosEncuesta$carrera = carreras
+
+knitr::kable(unique(carreras), col.names=c("Carreras"), caption = "Tabla 2")
 ```
 
-```{r}
-datosEncuesta$carrera = carreras
-head(datosEncuesta)
-```
+## Limpieza de la variable computador propio
+
+En la tabla 3 tenemos los posibles valores que podemos obtener con los computadores propios, como
+se puede evidenciar la variable toma cuatro valores, pero cuando las personas tienen un computador
+casi siempre suelen ser de ellos, por lo que solo vamos a dejar que las variables tomen el valor 
+de si o no.
 
 ```{r}
 computadorPropio <- datosEncuesta$computador_mesa
-summary(as.factor(computadorPropio) )
+knitr::kable(summary(as.factor(computadorPropio) ), col.names=c("Cantidad"), caption = "Tabla 3")
 ```
 
 
 ```{r}
 computadorPropio <- str_replace(computadorPropio, regex("si.*", ignore_case = TRUE ), "Si")
-summary(as.factor(computadorPropio) )
-```
-```{r}
+
 datosEncuesta$computador_mesa = computadorPropio
-print(head(datosEncuesta))
+
+knitr::kable(summary(as.factor(computadorPropio) ), col.names=c("Cantidad"), caption = "Tabla 4")
+#summary(as.factor(computadorPropio) )
+```
+
+
+## Limpieza datos smartphone
+
+Del mismo modo en la tabla 5 podemos ver que las otras categorías del si no aportan mucha información
+por lo que es mas conveniente unificar esta categoría en una sola y asumir que el celular que se usa 
+es de ellos.
+
+```{r}
+smartphone <- datosEncuesta$smartphone
+knitr::kable(summary(as.factor(smartphone) ), col.names=c("Cantidad"), caption = "Tabla 5")
+```
+
+En la tabla 6 podemos ver los resultados.
+
+
+```{r}
+smartphone <- str_replace(smartphone, regex("si.*", ignore_case = TRUE ), "Si")
+
+datosEncuesta$smartphone = smartphone
+
+knitr::kable(summary(as.factor(smartphone) ), col.names=c("Cantidad"), caption = "Tabla 6")
+```
+
+## Limpieza de datos portatil
+
+Para la limpieza de datos del portatil se separo esta variable en dos columnas.
+La primera si tiene portatil, la segunda para saber de quien es el portatil.
+
+```{r}
+knitr::kable(head(datosEncuesta %>% select("portatil") ), caption = "Tabla 6" )
 ```
 
 ```{r}
-library(tidyr)
-datosEncuesta <- separate(datosEncuesta, col = portatil, into = c("portatil", "De donde"), sep = ",")
+datosEncuesta <- separate(datosEncuesta, col = portatil, into = c("portatil", "¿De quien es el portatil?"), sep = ",")
+knitr::kable(head(datosEncuesta %>% select("portatil", "¿De quien es el portatil?") ), caption = "Tabla 7")
 ```
 
+## Limpieza de datos internet
 
-```{r}
-origenCovid <- datosEncuesta$origen_covid_19
-origenCovid <- na.omit(origenCovid)
-summary(as.factor(origenCovid) )
-```
-
+Para la limpieza de datos del internet se separo esta variable en dos columnas.
+La primera si tiene portatil, la segunda para saber de quien es el portatil.
 
 ```{r}
-library(dplyr)
-habitos <- datosEncuesta %>% select(starts_with("habito"))
-head(habitos)
+knitr::kable(head(datosEncuesta %>% select("internet") ), caption = "Tabla 7" )
 ```
+
 ```{r}
-#vect <- unlist(habitos)
-vect <- unlist(data.frame(C1 = c(t(habitos)))['C1'] )
-#class(vect)
-summary(vect)
-summary(na.omit(vect))
+datosEncuesta <- separate(datosEncuesta, col = internet, into = c("internet", "¿De quien es el internet?"), sep = "[.|,]")
+knitr::kable(head(datosEncuesta %>% select("internet", "¿De quien es el internet?") ), caption = "Tabla 8")
 ```
+
+## Correccion de las fechas 
+
+Existen algunas fechas que no estan formateadas adecuadamente para el analisis por lo que se tienen 
+que remplazar estas fechas de un modo adecuado.
 
 ```{r}
 fecha_nac1 <- as.Date(datosEncuesta$fecha_nac, "%d/%m/%Y")
@@ -98,11 +156,34 @@ fechas_con_problemas$fecha_nac_correcta <- c("05/09/1999", "08/10/1996",
                                              "09/06/1999", "10/09/2002",
                                              "20/06/1994")
 
-
-print(fechas_con_problemas$fecha_nac_correcta)
-
 datosEncuesta$fecha_nac[fechas_con_problemas$consecutivo] <- fechas_con_problemas$fecha_nac_correcta
+
+knitr::kable(fechas_con_problemas, caption = "Tabla 9")
 ```
+
+
+
+```{r}
+origenCovid <- datosEncuesta$origen_covid_19
+origenCovid <- na.omit(origenCovid)
+summary(as.factor(origenCovid) )
+```
+
+
+```{r}
+
+habitos <- datosEncuesta %>% select(starts_with("habito"))
+head(habitos)
+```
+```{r}
+#vect <- unlist(habitos)
+vect <- unlist(data.frame(C1 = c(t(habitos)))['C1'] )
+#class(vect)
+summary(vect)
+summary(na.omit(vect))
+```
+
+
 
 
 ```{r}
