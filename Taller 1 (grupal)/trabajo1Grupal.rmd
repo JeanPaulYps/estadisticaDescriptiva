@@ -24,6 +24,10 @@ datosEncuesta <- read.csv2("Encuesta_habitos.csv",
                        encoding = "UTF-8",
                        dec = ".",
                        stringsAsFactors = FALSE)
+datos <- read.csv2("Encuesta_habitos.csv", 
+                       encoding = "UTF-8",
+                       dec = ".",
+                       stringsAsFactors = FALSE)
 ```
 
 
@@ -190,3 +194,442 @@ summary(na.omit(vect))
 #enc_habit$fecha_nac <- as.Date(enc_habit$fecha_nac)
 #summary(enc_habit)
 ```
+
+
+## Análisis exploratorio de la variable género:
+
+```{r}
+tg <- table(datosEncuesta$genero)
+```
+
+```{r}
+pg <-
+  tg/sum(tg)*100
+```
+
+```{r}
+gtotal <- rbind(tg,pg)
+gtotal
+```
+
+```{r}
+bpg <- barplot(pg,
+        las = 1,
+        main = "Distribución en porcentajes de hombres y mujeres que\nrespondieron la encuesta",
+        ylab = "Porcentaje (%)",
+        ylim = c(0,90),
+        col=c("pink","lightblue"))
+text(bpg, c(30, 77),
+     labels = paste(formatC(round(pg, 2),
+                            digits = 4, decimal.mark = ",",
+                            big.mark = "."),
+                    "%"))
+text(bpg, c(37,83),
+     labels =formatC(tg))
+abline(h = seq(0,100,20),
+       col = "gray",
+       lty = 2)
+```
+
+La gráfica anterior y las tablas nos muestran que hay casi el triple de hombres que de mujeres en el curso, lo cuál deberemos tener en cuenta para analizar las siguientes variables y tratar de entender que diferencias hay entre cada géneto.
+
+## Relación del género con el PAPA
+
+```{r}
+param_ant <- par(no.readonly = TRUE)
+par(mar= param_ant$mar + c(0,0,0,0))
+with(datosEncuesta, boxplot(PAPA ~ genero,
+                            las=1,
+                            col=c("pink","lightblue"),
+                            main="PAPA vs Genero",
+                            cex.axis=0.8))
+```
+
+En el diagrama de caja y bigotes anterior podemos notar que las mujeres y los hombres comparten un PAPA muy similar en el percentil 50%, incluso vemos que tienen una media no muy diferente. Podemos notar una diferencia en que en el cuartil cuatro los hombres alcanzan un máximo de nota de alrededor de 4.5, teniendo un punto crítico con un hombre que tiene un PAPA en 4.7, y las mujeres de un 4,7 aproximadamente, sin ningún punto crítico.
+
+## Análisis para la variable fecha_nac
+
+```{r}
+datosEncuesta$edad <- as.numeric(as.Date("31/12/2020") - as.Date(datosEncuesta$fecha_nac))/365.25
+param_ant <- par(no.readonly = TRUE)
+par(mar = param_ant$mar + c(0, 2, 0, 0))
+hist(datosEncuesta$edad,
+     main="Histograma de Edad",
+     col="#CD6AE8",
+     xlab="Edad",
+     ylab="Frecuencia\n(numero de estudiantes)")
+par(param_ant)
+```
+
+Como podemos observar estos datos contienen bastantes errores ya que vemos que incluso hay personas de 0 a 5 años o de 5 a 10 años, lo cuál es bastante improbable que sea cierto y tendríamos que revisar bien los datos. Algunos de ellos fueron corregidos porque el único problema que había era que estaban en un formato diferente a DD/MM/AAAA. Sin embargo los demás datos no daban suficiente claridad y seguramente están erróneos debido a la mala interpretación a la pregunta. También observamos que la edad más común es de 15 a 20 años y que aún las edades de 30 y 35 años tienen una menor frecuencia que los que "tienen" de 0 a 5 años. También vemos una frecuencia similar en las edades entre 5 y 10 años y 25 y 30 años. En conclusión, tenemos unos datos bastante errados.
+
+## Relación de edad y PAPA
+
+```{r}
+datosEncuesta$edad <- as.integer(floor((as.Date("31/12/2020") -as.Date(datosEncuesta$fecha_nac))/365.25))
+param_ant <- par(no.readonly = TRUE)
+par(mar= param_ant$mar + c(0,0,0,0))
+with(datosEncuesta, boxplot(PAPA ~ edad,
+                            las=1,
+                            xlab="Edad",
+                            col=c("#26EADB"),
+                            main="PAPA vs Edad",
+                            cex.axis=0.8))
+par(param_ant)
+```
+
+Como podemos observar, las edades que alcanzan un punto máximo más alto son 17 y 26 años, y podemos ver que hay 8 edades que alcanzan una nota mínima de 3. Miremos también que la o las personas con edad de 22 años, que se pude ver que son pocas por el tamaño de la caja de bigotes, tiene una mediana por encima de las demás carreras. En sí no se puede observar una relación entre la edad y el PAPA.
+
+## Analisis para la variable carrera
+
+```{r}
+tcar <- table(datosEncuesta$carrera)
+```
+
+```{r}
+pcar <-
+  tcar/sum(tcar)*100
+```
+
+```{r}
+cartotal <- rbind(tcar,pcar)
+cartotal
+```
+```{r}
+param_ant <- par(no.readonly = TRUE)
+par(mar= param_ant$mar + c(5,0,0,0))
+bcar <- barplot(pcar,
+        las = 2,
+        main = "¿Personas de qué carreras ven EDAED?",
+        ylab = "Porcentaje (%)",
+        ylim = c(0,90),
+        col=c("#F08080"))
+text(bcar, c(58,6,6,6,44,6,6,6),
+     labels = paste(formatC(round(pcar, 2),
+                            digits = 4, decimal.mark = ",",
+                            big.mark = "."),
+                    "%"))
+text(bcar, c(68,17,17,17,53,17,17,17),
+     labels =formatC(tcar))
+abline(h = seq(0,100,20),
+       col = "gray",
+       lty = 2)
+```
+
+En la anterior gráfica de barras podemos notar que la carrera que más sobresale es Estadística, algo que se esperaba ya que esta materia es parte del curriculum de esta carrera. En segundo lugar vemos a Ing. de Sistemas con un 37,88% de los participantes en la encuesta, y se puede ver que las demás carreras son muy pocas y tienen un muy bajo porcentaje de personas.
+
+## Relacionando carreras y el PAPA
+
+```{r}
+param_ant <- par(no.readonly = TRUE)
+par(mar= param_ant$mar + c(4,0,0,0))
+with(datosEncuesta, boxplot(PAPA ~ carrera,
+                            las=2,
+                            xlab="",
+                            col=c("#4285F4"),
+                            main="PAPA vs Carrera",
+                            cex.axis=0.8))
+```
+
+Como podemos ver en el diagrama de caja y bigotes las carreras que tienen muy pocas personas solo se muestran como una raya, esto es porque la caja es tan pequeña que no se ve sino su mediana. Podemos ver también 4 puntos atípicos en Ing. de Sistemas, en Estadística no encontramos puntos atípicos pero vemos que su diagrama se extiende desde la nota más pequeña hasta la más grande, incluso superando al punto atípico más alto en Ing de Sistemas.
+
+## Análisis de la variable PAPA
+
+```{r}
+tpapa <- table(datosEncuesta$PAPA)
+```
+
+```{r}
+ppapa <-
+  tpapa/sum(tpapa)*100
+```
+
+```{r}
+totalpapa <- rbind(tpapa,ppapa)
+totalpapa
+```
+
+```{r}
+summary(datosEncuesta$PAPA)
+```
+```{r}
+param_ant <- par(no.readonly = TRUE)
+par(mar = param_ant$mar + c(0, 2, 0, 0))
+plot(c(3, 5), c(0, 20), type = "n", xlab = "", ylab = "",
+     las = 1)
+title(main = "Distribución del PAPA",
+     xlab = "Promedio Académico Ponderado Acumulado",
+     ylab = "Número de estudiantes\n(frecuencia absoluta)")
+abline(h = seq(0, 20, 5), col = "gray10", lty = 3)
+hist(datosEncuesta$PAPA, nclass = 20,
+     col = "#6254D8",
+     add = TRUE)
+par(param_ant)
+```
+
+En el histograma anterior podemos notar que la mayoría de personas tienen un promedio entre 3,7 y 3,8. También podemos notar que hay la misma cantidad de personas con notas entre3,4 y 3,5 y 3,5 y 3,6. Tambien vemos que no hay nadie que tenga nota de entre 4,3 y 4,4 y que solo hay una persona con nota entre 3,1 y 3,2 y sucede lo mismo entre 4,4 y 4,5.
+
+## Diagrama de caja y bigotes para PAPA
+
+```{r}
+bxp1 <- boxplot(datosEncuesta$PAPA, notch = TRUE, horizontal = TRUE,
+                col = "#89F487")
+title(main = "Distribución del PAPA", font = 2, 
+      xlab = "Promedio Académico Ponderado Acumulado")
+points(mean(datosEncuesta$PAPA, na.rm = TRUE), 1, col = "#006DF4", pch = 19, cex =2)
+legend(4.2, 1.5, legend = c("Promedio"), pch = 19, col = "#006DF4")
+```
+
+Podemos observar que la mediana y el promedio están en una posición muy similar. También vemos que hay solo dos puntos atípicos, con nota arriba de 4,5 lo cual no es tan común o son excepciones.
+
+
+
+## Variable Smarthphone
+
+TABLA.
+
+```{r}
+t1 <- sort(table(datosEncuesta$smartphone),decreasing = TRUE)
+t1
+```
+
+En (%)
+
+```{r}
+p1 <- t1/sum(t1) * 100
+p1
+
+```
+GRAFICA.
+
+```{r}
+par(bg="LIGHTCYAN")
+s3 <- barplot(t1,las = 2,
+             
+             axes = FALSE,
+             ylim = c(0,140),
+             border = "#000000", density = c(110, 100, 90, 80, 70, 60, 50, 40),
+             col= "#A9A9A9")
+
+title("Grafica smarthphone",
+      col.main = "#696969")
+
+
+text(s3, c(135,7
+           ),
+     labels = paste(round(p1,2), "%"))
+
+
+axis(2, at = c(0,10, 20, 30, 40, 50,60,70,80,90,100,110,120,130,140),
+     las = 1)
+abline(h= seq(140,140,20),col="black",lty=2)
+```
+
+```{r}
+z <-summary(datosEncuesta$PAPA)
+z
+```
+
+```{r}
+w <-summary(datosEncuesta$smartphone)
+w
+```
+
+```{r}
+with(datosEncuesta, boxplot(PAPA ~ smartphone,
+                            col="#FFA07A"))
+
+title(main = "Comportamiento del PAPA vs Smartphone",
+      col.main="#F08080")
+
+abline(h = mean(datosEncuesta$PAPA, na.rm = TRUE),
+       col = "blue")
+```
+
+
+
+## origen_covid_19
+
+```{r}
+origen <- datosEncuesta$origen_covid_19
+knitr::kable(summary(as.factor(origen) ), col.names=c("Cantidad"), caption = "Tabla 3")
+```
+
+TABLA MODIFICADA
+
+```{r}
+origen <- str_replace(origen, regex(".*Fue fabricado.*", ignore_case = TRUE ), "Laboratorio")
+
+origen <- str_replace(origen, regex(".*Fue un resultado .*", ignore_case = TRUE ), "Animal")
+
+origen <- str_replace(origen, regex(".*Es una.*", ignore_case = TRUE ), "conspiracion ")
+
+origen <- str_replace(origen, regex(".*No es real.*", ignore_case = TRUE ), "No es real ")
+
+
+datosEncuesta$origen_covid_19 = origen
+
+knitr::kable(summary(as.factor(origen) ) )
+
+```
+
+
+TABLA.
+
+```{r}
+t2 <- sort(table(datosEncuesta$origen_covid_19),decreasing = TRUE)
+t2
+```
+
+En (%)
+
+```{r}
+p2 <- t2/sum(t2) * 100
+p2
+
+```
+GRAFICA.
+
+```{r fig.height = 9, fig.width =9}
+parametros_anteriores <- par(no.readonly = TRUE)
+par ( mar = parametros_anteriores$mar + c(4,0,0,0))
+par(bg="#FFF8DC")
+s4 <- barplot(t2,las = 2,
+             
+             axes = FALSE,
+             ylim = c(0,70),
+             border = "#000000", density = c(110, 100, 90, 80, 70, 60, 50, 40),
+             col= "#A52A2A")
+
+title("Grafica origen_covid_19",
+      col.main = "#696969")
+
+
+text(s4, c(67,36,11,6,4,4,3,3),
+     labels = paste(round(p2,2), "%"))
+
+
+axis(2, at = c(0,10, 20, 30, 40, 50,60,70),
+     las = 1)
+abline(h= seq(70,700,20),col="black",lty=2)
+par(parametros_anteriores)
+```
+
+```{r}
+A<-summary(datosEncuesta$PAPA)
+A
+```
+
+```{r}
+OR <-summary(datosEncuesta$origen_covid_19)
+OR
+```
+
+```{r fig.height=9, fig.width=9}
+
+origen_covid_19 <- tapply(datosEncuesta$PAPA, datosEncuesta$origen_covid_19, mean, na.rm = TRUE)
+
+param_ant <- par(no.readonly = TRUE)
+par(mar = param_ant$mar + c(5, 0, 0, 0),
+    las = 2,
+    xaxt="n",
+    yaxt="n")
+with(datosEncuesta, boxplot(PAPA ~ origen_covid_19,
+                            xlab = "",
+                            notch = TRUE,
+                            varwidth = TRUE,
+                            col="#FFA07A"))
+
+title(main = "Comportamiento del PAPA vs origen_covid_19",
+      col.main="#F08080")
+
+text(1:length(origen_covid_19),
+      par("usr")[3] - 0.2,
+     labels = names(origen_covid_19),
+     srt = 50,
+     pos = 2,
+     col= "#7B68EE",
+     xpd = TRUE)
+text(par("usr")[1] - 0.4,
+     seq(3, max(datosEncuesta$PAPA, na.rm = TRUE), 0.2),
+     labels = formatC(seq(3, max(datosEncuesta$PAPA, na.rm = TRUE), 0.2),
+                      digits = 1,
+                      width = 3,
+                      format = "f",
+                      flag = "0"),
+     xpd = TRUE)
+axis(side = 2, at = seq(3, max(datosEncuesta$PAPA, na.rm = TRUE), 0.2))
+mtext("origen_covid_19",
+      col = "#A52A2A",
+      las = 1, 
+      side = 1, line = 8)
+
+abline(h = mean(datosEncuesta$PAPA, na.rm = TRUE),
+       col = "blue")
+par(param_ant)
+```
+
+## Variable estad_gov
+
+TABLA.
+
+```{r}
+t3 <- sort(table(datosEncuesta$estad_gov),decreasing = TRUE)
+t3
+```
+
+En (%)
+
+```{r}
+p3 <- t3/sum(t3) * 100
+p3
+
+```
+GRAFICA.
+
+```{r}
+par(bg="#E6E6FA")
+s5 <- barplot(t3,las = 2,
+             
+             axes = FALSE,
+             ylim = c(0,100),
+             border = "#000000", density = c(110, 100, 90, 80, 70, 60, 50, 40),
+             col= "#98FB98")
+
+title("Grafica (estad_gov)",
+      col.main = "#F08080")
+
+
+text(s5, c(91,33),
+     col= "#F08080",
+     labels = paste(round(p3,2), "%"))
+
+
+axis(2, at = c(0,10, 20, 30, 40, 50,60,70,80,90,100),
+     las = 1)
+
+abline(h= seq(100,100,20),col="black",lty=2)
+```
+
+
+```{r}
+B <-summary(datosEncuesta$PAPA)
+B
+```
+
+```{r}
+gov<-summary(datosEncuesta$estad_gov)
+gov
+```
+
+```{r}
+with(datosEncuesta, boxplot(PAPA ~ estad_gov,
+                            col="#FFA07A"))
+
+title(main = "Comportamiento del PAPA vs Estad_gov",
+      col.main="#F08080")
+
+abline(h = mean(datosEncuesta$PAPA, na.rm = TRUE),
+       col = "blue")
+```
+
