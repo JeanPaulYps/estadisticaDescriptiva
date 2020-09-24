@@ -167,33 +167,21 @@ knitr::kable(fechas_con_problemas, caption = "Tabla 9")
 
 
 
-```{r}
-origenCovid <- datosEncuesta$origen_covid_19
-origenCovid <- na.omit(origenCovid)
-summary(as.factor(origenCovid) )
-```
+## Análisis variable habitos de estudio
+
+Los habitos de estudio mas comunes en los estudiantes son: tomar pasuas cada cierto tiempo, resolver ejercicios
+sin ver las respuestas y tomar notas de los ejercicios en clase. Con respecto a como los estudiante estudian
+parece que ellos prefieren estudiar con amigos algunas veces.
 
 
 ```{r}
 
 habitos <- datosEncuesta %>% select(starts_with("habito"))
-head(habitos)
-```
-```{r}
-#vect <- unlist(habitos)
 vect <- unlist(data.frame(C1 = c(t(habitos)))['C1'] )
-#class(vect)
-summary(vect)
-summary(na.omit(vect))
+knitr::kable(sort(summary(na.omit(vect)), decreasing = T), col.names = c("Cantidad"),  caption = "Tabla 10")
+
 ```
 
-
-
-
-```{r}
-#enc_habit$fecha_nac <- as.Date(enc_habit$fecha_nac)
-#summary(enc_habit)
-```
 
 
 ## Análisis exploratorio de la variable género:

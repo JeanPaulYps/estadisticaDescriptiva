@@ -391,6 +391,7 @@ summary {
 <li><a href="#limpieza-de-datos-portatil">Limpieza de datos portatil</a></li>
 <li><a href="#limpieza-de-datos-internet">Limpieza de datos internet</a></li>
 <li><a href="#correccion-de-las-fechas">Correccion de las fechas</a></li>
+<li><a href="#análisis-variable-habitos-de-estudio">Análisis variable habitos de estudio</a></li>
 <li><a href="#análisis-exploratorio-de-la-variable-género">Análisis exploratorio de la variable género:</a></li>
 <li><a href="#relación-del-género-con-el-papa">Relación del género con el PAPA</a></li>
 <li><a href="#análisis-para-la-variable-fecha_nac">Análisis para la variable fecha_nac</a></li>
@@ -827,192 +828,109 @@ summary {
 </tr>
 </tbody>
 </table>
-<pre><code>##                                                                                                  Es una conspiración. 
-##                                                                                                                     4 
-##                                                                Es una conspiración.\nFue fabricado en un laboratorio. 
-##                                                                                                                     2 
-## Es una conspiración.\nFue un resultado de pasar el virus de animales a los humanos.\nFue fabricado en un laboratorio. 
-##                                                                                                                     1 
-##        Es una conspiración.\nNo es real, es un pretexto de los gobiernos del mundo.\nFue fabricado en un laboratorio. 
-##                                                                                                                     1 
-##                                                                                      Fue fabricado en un laboratorio. 
-##                                                                                                                    33 
-##                                                         Fue un resultado de pasar el virus de animales a los humanos. 
-##                                                                                                                    65 
-##                       Fue un resultado de pasar el virus de animales a los humanos.\nFue fabricado en un laboratorio. 
-##                                                                                                                     9 
-##                                                                No es real, es un pretexto de los gobiernos del mundo. 
-##                                                                                                                     2</code></pre>
-<pre><code>##                                                              habito_1
-## 1                 Tomas notas transcribiendo los ejercicios en clase.
-## 2 Hace un horario de estudio y se ajusta estrictamente a ese horario.
-## 3                                                       Estudia solo.
-## 4                        Escucha su música favorita mientras estudia.
-## 5                        Escucha su música favorita mientras estudia.
-## 6                 Tomas notas transcribiendo los ejercicios en clase.
-##                                                              habito_2
-## 1                        Escucha su música favorita mientras estudia.
-## 2                        Escucha su música favorita mientras estudia.
-## 3                 Toma pausas cada cierto tiempo de estudio continuo.
-## 4      Estudia varios temas distintos en una misma sesión de estudio.
-## 5                 Toma pausas cada cierto tiempo de estudio continuo.
-## 6 Hace un horario de estudio y se ajusta estrictamente a ese horario.
-##                                                                      habito_3
-## 1                                        Selecciona un lugar fijo de estudio.
-## 2                                        Selecciona un lugar fijo de estudio.
-## 3                                        Trasnocha estudiando para un examen.
-## 4                          Algunas veces estudia solo otras veces con amigos.
-## 5 Resuelve usted mismo los ejercicios sin ver las respuestas anticipadamente.
-## 6                                Escucha su música favorita mientras estudia.
-##                                                                                   habito_4
-## 1                           Estudia varios temas distintos en una misma sesión de estudio.
-## 2                           Estudia varios temas distintos en una misma sesión de estudio.
-## 3              Resuelve usted mismo los ejercicios sin ver las respuestas anticipadamente.
-## 4                                 Los ejercicios los hace junto con los amigos de estudio.
-## 5 Prefiere pocos ejercicios bien entendios a dar un vistazo a muchos ejercicios resueltos.
-## 6                                                     Selecciona un lugar fijo de estudio.
-##                                                                                   habito_5
-## 1                                       Algunas veces estudia solo otras veces con amigos.
-## 2                                       Algunas veces estudia solo otras veces con amigos.
-## 3 Prefiere pocos ejercicios bien entendios a dar un vistazo a muchos ejercicios resueltos.
-## 4                                      Toma pausas cada cierto tiempo de estudio continuo.
-## 5                                                                                     &lt;NA&gt;
-## 6                                      Lee varias veces un mismo capítulo del libro texto.
-##                                                             habito_6
-## 1                Toma pausas cada cierto tiempo de estudio continuo.
-## 2 Solo le pregunta a los amigos los ejercicios que no pudo resolver.
-## 3                                                               &lt;NA&gt;
-## 4                   Estudia todo el tema el día anterior del examen.
-## 5                                                               &lt;NA&gt;
-## 6     Estudia varios temas distintos en una misma sesión de estudio.
-##                                                   habito_7
-## 1 Usa los solucionarios para ver los ejercicios resueltos.
-## 2      Toma pausas cada cierto tiempo de estudio continuo.
-## 3                                                     &lt;NA&gt;
-## 4                     Trasnocha estudiando para un examen.
-## 5                                                     &lt;NA&gt;
-## 6                                            Estudia solo.
-##                                                                      habito_8
-## 1 Resuelve usted mismo los ejercicios sin ver las respuestas anticipadamente.
-## 2                            Estudia todo el tema el día anterior del examen.
-## 3                                                                        &lt;NA&gt;
-## 4                                                         Madruga a estudiar.
-## 5                                                                        &lt;NA&gt;
-## 6                                                        Memoriza ejercicios.
-##                                                                           habito_9
-## 1 Prefiere dar un vistazo a ejercicios resueltos de todos los posibles ejercicios.
-## 2      Resuelve usted mismo los ejercicios sin ver las respuestas anticipadamente.
-## 3                                                                             &lt;NA&gt;
-## 4                                                             Memoriza ejercicios.
-## 5                                                                             &lt;NA&gt;
-## 6                         Usa los solucionarios para ver los ejercicios resueltos.
-##                                                                                  habito_10
-## 1                                                                                     &lt;NA&gt;
-## 2 Prefiere pocos ejercicios bien entendios a dar un vistazo a muchos ejercicios resueltos.
-## 3                                                                                     &lt;NA&gt;
-## 4                                 Usa los solucionarios para ver los ejercicios resueltos.
-## 5                                                                                     &lt;NA&gt;
-## 6              Resuelve usted mismo los ejercicios sin ver las respuestas anticipadamente.
-##                                                                                  habito_11
-## 1                                                                                     &lt;NA&gt;
-## 2                                                                                     &lt;NA&gt;
-## 3                                                                                     &lt;NA&gt;
-## 4         Prefiere dar un vistazo a ejercicios resueltos de todos los posibles ejercicios.
-## 5                                                                                     &lt;NA&gt;
-## 6 Prefiere pocos ejercicios bien entendios a dar un vistazo a muchos ejercicios resueltos.
-##   habito_12 habito_13 habito_14 habito_15 habito_16 habito_17
-## 1      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;
-## 2      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;
-## 3      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;
-## 4      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;
-## 5      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;
-## 6      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;      &lt;NA&gt;</code></pre>
-<pre><code>##                                       Algunas veces estudia solo otras veces con amigos. 
-##                                                                                       76 
-##                                             Escucha su música favorita mientras estudia. 
-##                                                                                       49 
-##                                                                      Estudia con amigos. 
-##                                                                                       15 
-##                      Estudia solamente las soluciones de los libros o de los compañeros. 
-##                                                                                        3 
-##                                                                            Estudia solo. 
-##                                                                                       59 
-##                                         Estudia todo el tema el día anterior del examen. 
-##                                                                                       36 
-##                           Estudia varios temas distintos en una misma sesión de estudio. 
-##                                                                                       36 
-##                      Hace un horario de estudio y se ajusta estrictamente a ese horario. 
-##                                                                                       44 
-##                                      Lee varias veces un mismo capítulo del libro texto. 
-##                                                                                       50 
-##                                 Los ejercicios los hace junto con los amigos de estudio. 
-##                                                                                       27 
-##                                                                      Madruga a estudiar. 
-##                                                                                       45 
-##                                                                     Memoriza ejercicios. 
-##                                                                                       19 
-##         Prefiere dar un vistazo a ejercicios resueltos de todos los posibles ejercicios. 
-##                                                                                       35 
-## Prefiere pocos ejercicios bien entendios a dar un vistazo a muchos ejercicios resueltos. 
-##                                                                                       68 
-##              Resuelve usted mismo los ejercicios sin ver las respuestas anticipadamente. 
-##                                                                                       90 
-##                                                     Selecciona un lugar fijo de estudio. 
-##                                                                                       69 
-##                       Solo le pregunta a los amigos los ejercicios que no pudo resolver. 
-##                                                                                       62 
-##                                      Toma pausas cada cierto tiempo de estudio continuo. 
-##                                                                                       96 
-##                                      Tomas notas transcribiendo los ejercicios en clase. 
-##                                                                                       88 
-##                                                     Trasnocha estudiando para un examen. 
-##                                                                                       52 
-##                                 Usa los solucionarios para ver los ejercicios resueltos. 
-##                                                                                       75 
-##                                                                                     NA&#39;s 
-##                                                                                     1150</code></pre>
-<pre><code>##                                       Algunas veces estudia solo otras veces con amigos. 
-##                                                                                       76 
-##                                             Escucha su música favorita mientras estudia. 
-##                                                                                       49 
-##                                                                      Estudia con amigos. 
-##                                                                                       15 
-##                      Estudia solamente las soluciones de los libros o de los compañeros. 
-##                                                                                        3 
-##                                                                            Estudia solo. 
-##                                                                                       59 
-##                                         Estudia todo el tema el día anterior del examen. 
-##                                                                                       36 
-##                           Estudia varios temas distintos en una misma sesión de estudio. 
-##                                                                                       36 
-##                      Hace un horario de estudio y se ajusta estrictamente a ese horario. 
-##                                                                                       44 
-##                                      Lee varias veces un mismo capítulo del libro texto. 
-##                                                                                       50 
-##                                 Los ejercicios los hace junto con los amigos de estudio. 
-##                                                                                       27 
-##                                                                      Madruga a estudiar. 
-##                                                                                       45 
-##                                                                     Memoriza ejercicios. 
-##                                                                                       19 
-##         Prefiere dar un vistazo a ejercicios resueltos de todos los posibles ejercicios. 
-##                                                                                       35 
-## Prefiere pocos ejercicios bien entendios a dar un vistazo a muchos ejercicios resueltos. 
-##                                                                                       68 
-##              Resuelve usted mismo los ejercicios sin ver las respuestas anticipadamente. 
-##                                                                                       90 
-##                                                     Selecciona un lugar fijo de estudio. 
-##                                                                                       69 
-##                       Solo le pregunta a los amigos los ejercicios que no pudo resolver. 
-##                                                                                       62 
-##                                      Toma pausas cada cierto tiempo de estudio continuo. 
-##                                                                                       96 
-##                                      Tomas notas transcribiendo los ejercicios en clase. 
-##                                                                                       88 
-##                                                     Trasnocha estudiando para un examen. 
-##                                                                                       52 
-##                                 Usa los solucionarios para ver los ejercicios resueltos. 
-##                                                                                       75</code></pre>
+</div>
+<div id="análisis-variable-habitos-de-estudio" class="section level2">
+<h2>Análisis variable habitos de estudio</h2>
+<p>Los habitos de estudio mas comunes en los estudiantes son: tomar pasuas cada cierto tiempo, resolver ejercicios sin ver las respuestas y tomar notas de los ejercicios en clase. Con respecto a como los estudiante estudian parece que ellos prefieren estudiar con amigos algunas veces.</p>
+<table>
+<caption>Tabla 10</caption>
+<colgroup>
+<col width="90%" />
+<col width="9%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">Cantidad</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Toma pausas cada cierto tiempo de estudio continuo.</td>
+<td align="right">96</td>
+</tr>
+<tr class="even">
+<td align="left">Resuelve usted mismo los ejercicios sin ver las respuestas anticipadamente.</td>
+<td align="right">90</td>
+</tr>
+<tr class="odd">
+<td align="left">Tomas notas transcribiendo los ejercicios en clase.</td>
+<td align="right">88</td>
+</tr>
+<tr class="even">
+<td align="left">Algunas veces estudia solo otras veces con amigos.</td>
+<td align="right">76</td>
+</tr>
+<tr class="odd">
+<td align="left">Usa los solucionarios para ver los ejercicios resueltos.</td>
+<td align="right">75</td>
+</tr>
+<tr class="even">
+<td align="left">Selecciona un lugar fijo de estudio.</td>
+<td align="right">69</td>
+</tr>
+<tr class="odd">
+<td align="left">Prefiere pocos ejercicios bien entendios a dar un vistazo a muchos ejercicios resueltos.</td>
+<td align="right">68</td>
+</tr>
+<tr class="even">
+<td align="left">Solo le pregunta a los amigos los ejercicios que no pudo resolver.</td>
+<td align="right">62</td>
+</tr>
+<tr class="odd">
+<td align="left">Estudia solo.</td>
+<td align="right">59</td>
+</tr>
+<tr class="even">
+<td align="left">Trasnocha estudiando para un examen.</td>
+<td align="right">52</td>
+</tr>
+<tr class="odd">
+<td align="left">Lee varias veces un mismo capítulo del libro texto.</td>
+<td align="right">50</td>
+</tr>
+<tr class="even">
+<td align="left">Escucha su música favorita mientras estudia.</td>
+<td align="right">49</td>
+</tr>
+<tr class="odd">
+<td align="left">Madruga a estudiar.</td>
+<td align="right">45</td>
+</tr>
+<tr class="even">
+<td align="left">Hace un horario de estudio y se ajusta estrictamente a ese horario.</td>
+<td align="right">44</td>
+</tr>
+<tr class="odd">
+<td align="left">Estudia todo el tema el día anterior del examen.</td>
+<td align="right">36</td>
+</tr>
+<tr class="even">
+<td align="left">Estudia varios temas distintos en una misma sesión de estudio.</td>
+<td align="right">36</td>
+</tr>
+<tr class="odd">
+<td align="left">Prefiere dar un vistazo a ejercicios resueltos de todos los posibles ejercicios.</td>
+<td align="right">35</td>
+</tr>
+<tr class="even">
+<td align="left">Los ejercicios los hace junto con los amigos de estudio.</td>
+<td align="right">27</td>
+</tr>
+<tr class="odd">
+<td align="left">Memoriza ejercicios.</td>
+<td align="right">19</td>
+</tr>
+<tr class="even">
+<td align="left">Estudia con amigos.</td>
+<td align="right">15</td>
+</tr>
+<tr class="odd">
+<td align="left">Estudia solamente las soluciones de los libros o de los compañeros.</td>
+<td align="right">3</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="análisis-exploratorio-de-la-variable-género" class="section level2">
 <h2>Análisis exploratorio de la variable género:</h2>
