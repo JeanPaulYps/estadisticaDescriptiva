@@ -621,3 +621,133 @@ abline(h = mean(datosEncuesta$PAPA, na.rm = TRUE),
        col = "blue")
 ```
 
+## Estrato
+De esta grafica se puede observar que con un 44.2% la mayoria de los estudiantes matriculados en la materia (EDAED) son estrato 3 (medio), siguiendole el estrato 2 con un 34.3% y ademas de ello, en esta materia no se ecuentra ningun estudiante matriculado de estrato 6.
+
+
+```{r}
+P1 <- table(datosEncuesta$estrato)
+P1/sum(P1)*100 -> P11
+P1
+
+```
+```{r}
+P11
+```
+
+```{r}
+par(bg ="#D7D7D7")
+porcentaje <- round(P11,1)
+label <- paste(porcentaje, "%", sep = "")
+color <- c("deeppink", "mediumpurple1","mediumspringgreen","mediumorchid4","turquoise1","khaki2")
+pie(porcentaje, labels = "",cex = 1, clockwise = TRUE, main = "Estrato",
+    col = color)
+legend("topleft",paste(c("0","1","2","3","4","5"),
+                       label),
+       cex = 0.8, fill = color)
+
+```
+```{r}
+par(bg ="#D7D7D7")
+param_ant <- par(no.readonly = TRUE)
+par(mar= param_ant$mar + c(0,0,0,0))
+with(datosEncuesta, boxplot(PAPA ~ estrato,
+                            las= 1,
+                            col= "mediumspringgreen",
+                            main= "PAPA Vs Estrato",
+                            cex.axis = 0.8))
+```
+
+
+
+ De esta relacion entre las variables Estrato y PAPA, se puede observar que en el estrato 0, se encuentra una persona, la cual tiene un PAPA igual a 3.0. En estrato 1, se encuentran 17 personas que tienen un  PAPA promedio entre 3.4 y 3.9, sin embargo la mayor parte de estas personas se acomula entre 3.6 y 3.9. En el estrato 2 se encuentran 45 personas,las cuales tienen un PAPA promedio entre 3.3 y 3.9, sin embargo hay una persona con un PAPA mayor a 4.5 y se sale de este promedio, por esta razon es considerado un dato atipico. En el estrato 3 se concentran la mayor parte de los estudiantes con un PAPA promedio entre 3.5 y 3.9, en este estrato tambien se encuentran datos atipicos con un PAPA superior a 4.5. En el estrato 4 se encuentran 9 personas con un PAPA promedio entre 3.6 y 3.8, encontrando es est tabien un  dato atipico con un PAPA promedio superior a 4.0. En el estrato 5 se enceuntra solo una persona con un PAPA promedio igual a 3.8. De esta grafica podemos concluir que siendo el estrato 0 el mas bajo, tiene tambien el promedio PAPA mas bajo, quizas el estrato afecte directamente el PAPA.
+
+
+
+
+##  ¿Tiene computador de mesa?
+De esta grafica se puede evidenciar que mas de la mitad de los estudiantes matriculados es la materia (EDAED) NO tienen computador de mesa.
+
+```{r} 
+P2 <- table(datosEncuesta$computador_mesa)
+P2/sum(P2)*100 -> P21
+P2
+```
+```{r}
+P21
+```
+
+```{r}
+par(bg ="#D7D7D7")
+BP2 <- barplot(P2,
+               las= 1,
+               main = "¿Tiene computador de mesa?",
+               xlab = "Cantidad de respuestas",
+               horiz = 1,
+               space = 0.10,
+               width = c(1.2,1.2),
+               border = "gray7",
+               col = c("lightblue3","lightpink"),
+               xlim = c(0,120))
+text(P21+28.4, BP2, labels =paste( round(P21, 2), "%"))
+
+
+
+
+```
+```{r}
+par(bg ="#D7D7D7")
+param_ant <- par(no.readonly = TRUE)
+par(mar= param_ant$mar + c(0,0,0,0))
+with(datosEncuesta, boxplot(PAPA ~ computador_mesa,
+                            las= 1,
+                            col= "lightskyblue",
+                            main= "PAPA Vs Computador de mesa",
+                            cex.axis = 0.8))
+```
+
+
+De esta relacion entre las variables PAPA y si tiene o no computador de mesa, se puede evidenciar que no afecta el PAPA, ya que ambas se encuentran en un mismo promedio.
+
+
+## ¿Tiene computador portatil?
+
+
+De esta grafica  se puede evidenciar con un 86.4% que  hay una gran cantidad de estudiantes que tienen computador portatil,siendo este el mas popular en los ultimos años por su facilidad y comodidad para llevarlo a todas partes.
+
+
+
+```{r}
+
+P3  <- sort(table(datosEncuesta$portatil), decreasing = TRUE)
+P31 <-round(P3/sum(P3)*100, 1)
+Z3  <- cbind(P3,P31)
+colnames(Z3) = c("Frecuecnia", "Porcentaje")
+Z3
+```
+```{r}
+par(bg ="#D7D7D7")
+porcentaje <- round(P31,1)
+label <- paste(porcentaje, "%", sep = "")
+color <- c("orchid1", "yellow")
+pie(porcentaje, labels = "",cex = 1, clockwise = TRUE, main = "¿Tiene computador portati?",
+    col = color)
+legend("topright",paste(c("Si", "No"),
+                       label),
+       cex = 1.5, fill = color)
+
+
+```
+
+```{r}
+par(bg ="#D7D7D7")
+param_ant <- par(no.readonly = TRUE)
+par(mar= param_ant$mar + c(0,0,0,0))
+with(datosEncuesta, boxplot(PAPA ~ portatil,
+                            las= 1,
+                            col= "plum",
+                            main= "PAPA Vs Computador portatil",
+                            cex.axis = 0.8))
+```
+
+De esta relacion entre las variables PAPA y si tiene o no computador portatil se puede evidenciar que no afecta la una a la otra, ambas se cuentran entre un rango del mismo promedio y ambas tienen datos atipicos.
