@@ -183,6 +183,38 @@ knitr::kable(sort(summary(na.omit(vect)), decreasing = T), col.names = c("Cantid
 ```
 
 
+```{r}
+habitosFactor <- unique(na.omit(vect))
+
+habitosConPapa <- datosEncuesta %>% select(c(PAPA, starts_with("habito")) )
+nombresHabitos <- colnames(habitosConPapa) 
+nombresHabitos <- nombresHabitos[grep("habito.*", nombresHabitos)]
+test <- unite(habitosConPapa, habito_1, nombresHabitos)
+PapaTest <- test %>% filter(str_detect(habito_1, "Escucha"))
+PapaTest <- drop_na(PapaTest)
+habitosExistentes <- c()
+PAPAporHabito <- list()
+medianasHabitos <- c()
+
+for (habito in habitosFactor)
+{
+   PapaDelHabito <- test %>% filter(str_detect(habito_1, habito))
+   PapaDelHabito <- drop_na(PapaDelHabito)
+   PAPAporHabito[length(PAPAporHabito)+1] <- list(PapaDelHabito$PAPA)
+   medianasHabitos <- append(medianasHabitos, as.numeric(median(PapaDelHabito$PAPA, na.rm = TRUE )))
+} 
+habitosDeEstudio <- as.character(habitosFactor)
+knitr::kable(data.frame(habitosDeEstudio, medianasHabitos ), col.names =c("Habitos", "Medianas") )
+
+```
+```{r, fig.height=8, fig.width=10}
+par(mar = c(2, 22, 0, 0))
+boxplot (PAPAporHabito, names = habitosFactor, horizontal = T, las = 1, cex.axis =0.65, col="#EDA11A", border = "#A16700", frame = F, ylim = c(3,5))
+abline(v = median(na.omit(datosEncuesta$PAPA))  , col = "#1b7ced" , lwd = 2, lty="dotted")
+```
+
+
+
 
 ## Análisis exploratorio de la variable género:
 
@@ -751,3 +783,182 @@ with(datosEncuesta, boxplot(PAPA ~ portatil,
 ```
 
 De esta relacion entre las variables PAPA y si tiene o no computador portatil se puede evidenciar que no afecta la una a la otra, ambas se cuentran entre un rango del mismo promedio y ambas tienen datos atipicos.
+
+## ¿De quién es el portátil?
+
+Se hizo una distribución para saber de quién es el portátil, se obtuvieron los
+siguientes resultados.
+
+La siguiente tabla es la distribución de frecuencias de la pregunta que se
+realizó.
+
+```{r}
+t1<- table(datosEncuesta$`¿De quien es el portatil?`)
+t1
+```
+La siguiente tabla es de porcentajes de acuerdo a los resultados obtenidos
+
+```{r}
+t1/sum(t1)*100
+```
+## Diagrama de barras ¿De quién es el portátil?
+
+```{r}
+plot(seq(0, 4, length.out = 120), seq(0, 120, length.out = 120), type = "n",
+     axes = FALSE,
+     xlab = "",
+     ylab = "")
+abline(h = seq(0, 120, 20), col = "grey80", lty = 3)
+
+bp1<-barplot(t1,
+             las = 1,
+             main = ("¿De quién es el portátil?"),  
+             ylim = c(0, 120),
+             col = c("lightsalmon4","lightsalmon3","lightsalmon1"), 
+             xlab = "",
+             ylab = "",
+             add = TRUE)
+
+axis(2, at = c(0, 20, 40, 60, 80, 120),
+     las = 1)
+text(bp1, c(5, 20, 103),
+     labels = paste(formatC(round(t1),
+                            digits = 2, decimal.mark = ",",
+                            big.mark = ",")
+                    ))
+```
+- La mayoria de personas encuestadas (97) tienen un portátil propio.
+
+- Solamente 16 personas de 132 encuestados les prestaron un portátil.
+
+- Una persona alquiló un computador portátil.
+
+## Diagrama de caja PAPA vs ¿De quién es el portátil?
+
+Cuando se hace el analisis entre estas variables obtenemos estos resultados:
+
+```{r}
+param_ant <- par(no.readonly = TRUE)
+par(mar= param_ant$mar + c(0, 0, 0, 0))
+with(datosEncuesta, boxplot(PAPA ~ `¿De quien es el portatil?`,
+                            las= 1,
+                            col= c("lightsalmon4", "lightsalmon3", "lightsalmon1"),
+                            main= "PAPA vs ¿De quién es el portátil?",
+                            cex.axis = 0.8))
+                            
+```
+- La mayoría de personas que tienen portátil prestado tienen un PAPA de 3.6 
+hasta 4.2
+
+- Los que tienen computador propio tiene un promedio entre 3.5 y 3.7.
+
+- Se tienen dos  datos atípicos de personas con portátil propio con promedio
+mayor a 4.5.
+
+- Solo una persona encuestada tiene portátil alquilado, en el cual podemos ver
+que su promedio se encuentra entre 3.3 y 3.5
+
+```{r}
+t22<-table(datosEncuesta$internet)
+t22
+
+```
+```{r}
+t22<-table(datosEncuesta$internet)
+t2/sum(t2)*100 -> t2
+```
+
+```{r}
+t2
+```
+
+## Diagrama Internet
+
+En este diagrama podemos observar que todas las personas encuestadas tienen
+internet.
+
+```{r}
+porcentaje <- round(t2, 1)
+label <- paste(porcentaje, "%", sep="")
+
+pie(t2, labels = "",cex= 1, clockwise = TRUE, main = "Internet",
+    col = "chocolate4" )
+   
+legend("topleft",paste(c("SI"),
+                          label),
+       cex = 0.9, 
+       fill = "chocolate4")
+```
+El 100% de la personas encuestadas tienen internet.
+
+## Diagrama de caja PAPA vs Internet
+
+```{r}
+param_ant <- par(no.readonly = TRUE)
+par(mar= param_ant$mar + c(0,0,0,0))
+with(datosEncuesta, boxplot(PAPA ~ `internet`,
+                            las = 1,
+                            col=c("chocolate4"),
+                            main="PAPA vs Internet",
+                            cex.axis=0.8))
+```
+
+- Todas las personas encuestadas tienen internet, y sus promedios estan entre
+3.5 y 3.8 a comparación de dos datos atipicos mayores a 4.5.
+
+
+```{r}
+table(datosEncuesta$`¿De quien es el internet?`)
+
+```
+```{r}
+t3 <- table(datosEncuesta$`¿De quien es el internet?`)
+t3/sum(t3)*100
+```
+## Diagrama de barras ¿De quién es el internet?
+
+```{r}
+bp3<-barplot(t3,
+             las = 1, cex.names = 0.5,
+             main = (""),
+             ylim = c(0, 100),
+             col = c("chocolate4", "burlywood2", "darkkhaki", "darkolivegreen4",
+                     "darkolivegreen", "darkorange3"),
+             legend.text = c("Alquilado", "Contrabando", "Familiar", "Plan de datos", "Prestado", "Propio"),
+             names.arg = "",
+             xlab = "",
+             ylab = "Total personas",
+             axes = FALSE,
+             add = FALSE)
+            
+
+axis(2, at = c(0, 20, 40, 60, 80, 100),
+     las = 1)
+     text(bp3, c(9, 3, 75, 7, 8, 47) + 1, 
+     labels = paste(formatC(round(t3, 1),
+                            digits = 2, decimal.mark = ",",
+                            big.mark = ".")
+                    ))
+
+```
+- La mayor cantidad de personas encuestadas poseen internet familiar, seguido 
+en cantidad por internet propio.
+
+- Solo una persona de las que fueron encuestadas posee internet de contrabando.
+
+## Diagrama de bigotes PAPA vs ¿De quién es el internet?
+
+```{r}
+par(mar = c(10, 6, 4, 4))
+param_ant <- par(no.readonly = TRUE)
+par(mar= param_ant$mar + c(0,0,0,0))
+internet_papa<-with(datosEncuesta, boxplot(PAPA ~ `¿De quien es el internet?`,
+                            las = 2,
+                            xlab = "",
+                           main="PAPA vs ¿De quién es el internet?",
+
+                            col=c("chocolate4", "burlywood2", "darkkhaki", "darkolivegreen4", "darkolivegreen", "darkorange3", "darkolivegreen", "darkorange3")),
+                            cex.axis=0.8)
+
+```
+
