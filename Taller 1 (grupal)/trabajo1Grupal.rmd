@@ -1,11 +1,11 @@
 ---
 title: "Encuesta sobre hábitos de estudio"
-author: "Jean Paul Yepes"
+author: "Jean Paul Yepes, Alejandro Santamaria Espinosa, Evelyn Dayanna Bermudez, Elver Noe Tunubala, Paula Andrea Cifuentes"
 date: "16 de septiembre de 2020"
 output: 
   html_document: 
     toc: yes
-    #theme: journal
+    css: estilos.css
 ---
 
 ```{r setup, include=FALSE}
@@ -166,13 +166,16 @@ knitr::kable(fechas_con_problemas, caption = "Tabla 9")
 ```
 
 
+# Análisis variables 
 
-## Análisis variable habitos de estudio
+
+## Análisis exploratoria de la variable habitos de estudio
 
 Los habitos de estudio mas comunes en los estudiantes son: tomar pasuas cada cierto tiempo, resolver ejercicios
 sin ver las respuestas y tomar notas de los ejercicios en clase. Con respecto a como los estudiante estudian
 parece que ellos prefieren estudiar con amigos algunas veces.
 
+## Tabla habitos de estudio
 
 ```{r}
 
@@ -182,6 +185,7 @@ knitr::kable(sort(summary(na.omit(vect)), decreasing = T), col.names = c("Cantid
 
 ```
 
+## Tabla mediana habitos de estudio
 
 ```{r}
 habitosFactor <- unique(na.omit(vect))
@@ -207,6 +211,9 @@ habitosDeEstudio <- as.character(habitosFactor)
 knitr::kable(data.frame(habitosDeEstudio, medianasHabitos ), col.names =c("Habitos", "Medianas") )
 
 ```
+
+## Habitos de estudio vs PAPA
+
 ```{r, fig.height=8, fig.width=10}
 par(mar = c(2, 22, 0, 0))
 boxplot (PAPAporHabito, names = habitosFactor, horizontal = T, las = 1, cex.axis =0.65, col="#EDA11A", border = "#A16700", frame = F, ylim = c(3,5))
@@ -216,7 +223,7 @@ abline(v = median(na.omit(datosEncuesta$PAPA))  , col = "#1b7ced" , lwd = 2, lty
 
 
 
-## Análisis exploratorio de la variable género:
+## Análisis exploratorio de la variable género
 
 ```{r}
 tg <- table(datosEncuesta$genero)
@@ -267,7 +274,7 @@ with(datosEncuesta, boxplot(PAPA ~ genero,
 
 En el diagrama de caja y bigotes anterior podemos notar que las mujeres y los hombres comparten un PAPA muy similar en el percentil 50%, incluso vemos que tienen una media no muy diferente. Podemos notar una diferencia en que en el cuartil cuatro los hombres alcanzan un máximo de nota de alrededor de 4.5, teniendo un punto crítico con un hombre que tiene un PAPA en 4.7, y las mujeres de un 4,7 aproximadamente, sin ningún punto crítico.
 
-## Análisis para la variable fecha_nac
+## Análisis exploratorio para la variable fecha_nac
 
 ```{r}
 datosEncuesta$edad <- as.numeric(as.Date("31/12/2020") - as.Date(datosEncuesta$fecha_nac))/365.25
@@ -353,7 +360,7 @@ with(datosEncuesta, boxplot(PAPA ~ carrera,
 
 Como podemos ver en el diagrama de caja y bigotes las carreras que tienen muy pocas personas solo se muestran como una raya, esto es porque la caja es tan pequeña que no se ve sino su mediana. Podemos ver también 4 puntos atípicos en Ing. de Sistemas, en Estadística no encontramos puntos atípicos pero vemos que su diagrama se extiende desde la nota más pequeña hasta la más grande, incluso superando al punto atípico más alto en Ing de Sistemas.
 
-## Análisis de la variable PAPA
+## Análisis exploratorio de la variable PAPA
 
 ```{r}
 tpapa <- table(datosEncuesta$PAPA)
@@ -404,7 +411,7 @@ Podemos observar que la mediana y el promedio están en una posición muy simila
 
 
 
-## Variable Smarthphone
+## Variable exploratorio de la variable Smarthphone
 
 TABLA.
 
@@ -468,7 +475,7 @@ abline(h = mean(datosEncuesta$PAPA, na.rm = TRUE),
 
 
 
-## origen_covid_19
+## Analisis exploratorio de la variable origen covid 19
 
 ```{r}
 origen <- datosEncuesta$origen_covid_19
@@ -494,7 +501,7 @@ knitr::kable(summary(as.factor(origen) ) )
 ```
 
 
-TABLA.
+## Tabla origen covid 19
 
 ```{r}
 t2 <- sort(table(datosEncuesta$origen_covid_19),decreasing = TRUE)
@@ -508,7 +515,7 @@ p2 <- t2/sum(t2) * 100
 p2
 
 ```
-GRAFICA.
+## Grafica origen covid 19
 
 ```{r fig.height = 9, fig.width =9}
 parametros_anteriores <- par(no.readonly = TRUE)
@@ -544,6 +551,8 @@ A
 OR <-summary(datosEncuesta$origen_covid_19)
 OR
 ```
+
+## PAPA vs origen covid 19
 
 ```{r fig.height=9, fig.width=9}
 
@@ -589,7 +598,7 @@ abline(h = mean(datosEncuesta$PAPA, na.rm = TRUE),
 par(param_ant)
 ```
 
-## Variable estad_gov
+## Analisis exploratorio de la variable cree en las estadísticas de gobierno
 
 TABLA.
 
@@ -641,6 +650,8 @@ B
 gov<-summary(datosEncuesta$estad_gov)
 gov
 ```
+
+## PAPA vs estadisticas de gobierno
 
 ```{r}
 with(datosEncuesta, boxplot(PAPA ~ estad_gov,
@@ -771,6 +782,8 @@ legend("topright",paste(c("Si", "No"),
 
 ```
 
+## PAPA vs computador portatil
+
 ```{r}
 par(bg ="#D7D7D7")
 param_ant <- par(no.readonly = TRUE)
@@ -865,30 +878,27 @@ t22
 ```
 ```{r}
 t22<-table(datosEncuesta$internet)
-t2/sum(t2)*100 -> t2
+t22Porcentaje <-t2/sum(t2)*100 -> t2
 ```
 
 ```{r}
 t2
 ```
 
-## Diagrama Internet
+## Analisis exploratorio de la variable internet
 
 En este diagrama podemos observar que todas las personas encuestadas tienen
 internet.
 
-```{r}
-porcentaje <- round(t2, 1)
-label <- paste(porcentaje, "%", sep="")
 
-pie(t2, labels = "",cex= 1, clockwise = TRUE, main = "Internet",
-    col = "chocolate4" )
-   
-legend("topleft",paste(c("SI"),
-                          label),
-       cex = 0.9, 
-       fill = "chocolate4")
+```{r}
+t22
 ```
+
+```{r}
+t22/sum(t22)*100 
+```
+
 El 100% de la personas encuestadas tienen internet.
 
 ## Diagrama de caja PAPA vs Internet
@@ -961,4 +971,23 @@ internet_papa<-with(datosEncuesta, boxplot(PAPA ~ `¿De quien es el internet?`,
                             cex.axis=0.8)
 
 ```
+
+
+# Recomendaciones
+
+Hubiera sido mas fácil preguntar a los encuestados por la edad y no preguntarles la fecha de nacimiento, ya que así la gente hubiera 
+cometido menos errores a la hora de digitar este dato.
+
+Sería conveniente que se estableciera una edad miníma para evitar que las personas pongan fechas de nacimiento que 
+no eran posibles.
+
+En varias preguntas como si tienen internet o computador hubiera sido conveniente preguntar primero si se tiene internet y en otra
+pregunta aparte preguntar de quien es el internet, para tener mejor clasificada la variable.
+
+
+
+
+
+
+
 
