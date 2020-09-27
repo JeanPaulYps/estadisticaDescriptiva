@@ -168,14 +168,36 @@ knitr::kable(fechas_con_problemas, caption = "Tabla 9")
 
 # Análisis variables 
 
+## Análisis de habitos de estudio
 
-## Análisis exploratoria de la variable habitos de estudio
+
+
+### Análisis exploratorio de la variable habitos de estudio
 
 Los habitos de estudio mas comunes en los estudiantes son: tomar pasuas cada cierto tiempo, resolver ejercicios
 sin ver las respuestas y tomar notas de los ejercicios en clase. Con respecto a como los estudiante estudian
 parece que ellos prefieren estudiar con amigos algunas veces.
 
-## Tabla habitos de estudio
+### Análisis habitos contradictorios
+
+Se observa que los estudiantes que resuelven los ejercicios sin ver las respuestas les tiende a ir mejor
+que las personas que memorizan ejercicios para el examen, parece que un habito que mejoraría las notas
+de los estudiantes sería enfrentarse a ejercicios.
+
+Similarmente los que estudian con amigos tienen un mejor PAPA que los que estudian solos, aunque todavía no
+es concluyente porque la cantidad de personas que respondieron que estudian con amigos es muy poca en 
+relación a los que estudian solos.
+
+Otra comparación que podemos realizar a partir de los datos son las personas que estudian el día antes
+del examen, los que trasnochan el dían anterior y los que fijan un horario para estudiar, hay una gran 
+diferencia a favor para los que fijan un horario para estudiar e inclusive los que trasnochan el día 
+antes del examen el top 75%  apenas llegan a la mediana de los que fijan un horario y el resultado es peor
+para los que estudian el dia antes.
+
+
+
+
+### Tabla habitos de estudio
 
 ```{r}
 
@@ -185,7 +207,7 @@ knitr::kable(sort(summary(na.omit(vect)), decreasing = T), col.names = c("Cantid
 
 ```
 
-## Tabla mediana habitos de estudio
+### Tabla mediana habitos de estudio
 
 ```{r}
 habitosFactor <- unique(na.omit(vect))
@@ -212,7 +234,7 @@ knitr::kable(data.frame(habitosDeEstudio, medianasHabitos ), col.names =c("Habit
 
 ```
 
-## Habitos de estudio vs PAPA
+### Habitos de estudio vs PAPA
 
 ```{r, fig.height=8, fig.width=10}
 par(mar = c(2, 22, 0, 0))
@@ -221,9 +243,9 @@ abline(v = median(na.omit(datosEncuesta$PAPA))  , col = "#1b7ced" , lwd = 2, lty
 ```
 
 
+## Análisis de género
 
-
-## Análisis exploratorio de la variable género
+### Análisis exploratorio de la variable género
 
 ```{r}
 tg <- table(datosEncuesta$genero)
@@ -260,7 +282,7 @@ abline(h = seq(0,100,20),
 
 La gráfica anterior y las tablas nos muestran que hay casi el triple de hombres que de mujeres en el curso, lo cuál deberemos tener en cuenta para analizar las siguientes variables y tratar de entender que diferencias hay entre cada géneto.
 
-## Relación del género con el PAPA
+### Relación del género con el PAPA
 
 ```{r}
 param_ant <- par(no.readonly = TRUE)
@@ -274,7 +296,7 @@ with(datosEncuesta, boxplot(PAPA ~ genero,
 
 En el diagrama de caja y bigotes anterior podemos notar que las mujeres y los hombres comparten un PAPA muy similar en el percentil 50%, incluso vemos que tienen una media no muy diferente. Podemos notar una diferencia en que en el cuartil cuatro los hombres alcanzan un máximo de nota de alrededor de 4.5, teniendo un punto crítico con un hombre que tiene un PAPA en 4.7, y las mujeres de un 4,7 aproximadamente, sin ningún punto crítico.
 
-## Análisis exploratorio para la variable fecha_nac
+### Análisis exploratorio para la variable fecha de nacimiento
 
 ```{r}
 datosEncuesta$edad <- as.numeric(as.Date("31/12/2020") - as.Date(datosEncuesta$fecha_nac))/365.25
@@ -290,7 +312,7 @@ par(param_ant)
 
 Como podemos observar estos datos contienen bastantes errores ya que vemos que incluso hay personas de 0 a 5 años o de 5 a 10 años, lo cuál es bastante improbable que sea cierto y tendríamos que revisar bien los datos. Algunos de ellos fueron corregidos porque el único problema que había era que estaban en un formato diferente a DD/MM/AAAA. Sin embargo los demás datos no daban suficiente claridad y seguramente están erróneos debido a la mala interpretación a la pregunta. También observamos que la edad más común es de 15 a 20 años y que aún las edades de 30 y 35 años tienen una menor frecuencia que los que "tienen" de 0 a 5 años. También vemos una frecuencia similar en las edades entre 5 y 10 años y 25 y 30 años. En conclusión, tenemos unos datos bastante errados.
 
-## Relación de edad y PAPA
+### Relación de edad y PAPA
 
 ```{r}
 datosEncuesta$edad <- as.integer(floor((as.Date("31/12/2020") -as.Date(datosEncuesta$fecha_nac))/365.25))
@@ -307,7 +329,9 @@ par(param_ant)
 
 Como podemos observar, las edades que alcanzan un punto máximo más alto son 17 y 26 años, y podemos ver que hay 8 edades que alcanzan una nota mínima de 3. Miremos también que la o las personas con edad de 22 años, que se pude ver que son pocas por el tamaño de la caja de bigotes, tiene una mediana por encima de las demás carreras. En sí no se puede observar una relación entre la edad y el PAPA.
 
-## Analisis para la variable carrera
+## Análisis de la carrera
+
+### Analisis exploratorio para la variable carrera
 
 ```{r}
 tcar <- table(datosEncuesta$carrera)
@@ -345,7 +369,7 @@ abline(h = seq(0,100,20),
 
 En la anterior gráfica de barras podemos notar que la carrera que más sobresale es Estadística, algo que se esperaba ya que esta materia es parte del curriculum de esta carrera. En segundo lugar vemos a Ing. de Sistemas con un 37,88% de los participantes en la encuesta, y se puede ver que las demás carreras son muy pocas y tienen un muy bajo porcentaje de personas.
 
-## Relacionando carreras y el PAPA
+### Relacionando carreras y el PAPA
 
 ```{r}
 param_ant <- par(no.readonly = TRUE)
@@ -360,7 +384,9 @@ with(datosEncuesta, boxplot(PAPA ~ carrera,
 
 Como podemos ver en el diagrama de caja y bigotes las carreras que tienen muy pocas personas solo se muestran como una raya, esto es porque la caja es tan pequeña que no se ve sino su mediana. Podemos ver también 4 puntos atípicos en Ing. de Sistemas, en Estadística no encontramos puntos atípicos pero vemos que su diagrama se extiende desde la nota más pequeña hasta la más grande, incluso superando al punto atípico más alto en Ing de Sistemas.
 
-## Análisis exploratorio de la variable PAPA
+## Análisis del PAPA
+
+### Análisis exploratorio de la variable PAPA
 
 ```{r}
 tpapa <- table(datosEncuesta$PAPA)
@@ -396,7 +422,7 @@ par(param_ant)
 
 En el histograma anterior podemos notar que la mayoría de personas tienen un promedio entre 3,7 y 3,8. También podemos notar que hay la misma cantidad de personas con notas entre3,4 y 3,5 y 3,5 y 3,6. Tambien vemos que no hay nadie que tenga nota de entre 4,3 y 4,4 y que solo hay una persona con nota entre 3,1 y 3,2 y sucede lo mismo entre 4,4 y 4,5.
 
-## Diagrama de caja y bigotes para PAPA
+### Diagrama de caja y bigotes para PAPA
 
 ```{r}
 bxp1 <- boxplot(datosEncuesta$PAPA, notch = TRUE, horizontal = TRUE,
@@ -410,10 +436,11 @@ legend(4.2, 1.5, legend = c("Promedio"), pch = 19, col = "#006DF4")
 Podemos observar que la mediana y el promedio están en una posición muy similar. También vemos que hay solo dos puntos atípicos, con nota arriba de 4,5 lo cual no es tan común o son excepciones.
 
 
+## Análisis de la variable smartphone
 
-## Variable exploratorio de la variable Smarthphone
+### Variable exploratorio de la variable smarthphone
 
-TABLA.
+### Tabla variable smartphone
 
 ```{r}
 t1 <- sort(table(datosEncuesta$smartphone),decreasing = TRUE)
@@ -427,7 +454,7 @@ p1 <- t1/sum(t1) * 100
 p1
 
 ```
-GRAFICA.
+### Grafica smartphone
 
 ```{r}
 par(bg="LIGHTCYAN")
@@ -457,10 +484,8 @@ z <-summary(datosEncuesta$PAPA)
 z
 ```
 
-```{r}
-w <-summary(datosEncuesta$smartphone)
-w
-```
+### Gráfica de smartphone vs PAPA
+
 
 ```{r}
 with(datosEncuesta, boxplot(PAPA ~ smartphone,
@@ -473,13 +498,13 @@ abline(h = mean(datosEncuesta$PAPA, na.rm = TRUE),
        col = "blue")
 ```
 
+## Análisis origen covid 19
 
-
-## Analisis exploratorio de la variable origen covid 19
+### Análisis exploratorio de la variable origen covid 19
 
 ```{r}
 origen <- datosEncuesta$origen_covid_19
-knitr::kable(summary(as.factor(origen) ), col.names=c("Cantidad"), caption = "Tabla 3")
+knitr::kable(summary(as.factor(origen)), col.names=c("Cantidad"), caption = "Tabla 3")
 ```
 
 TABLA MODIFICADA
@@ -501,7 +526,7 @@ knitr::kable(summary(as.factor(origen) ) )
 ```
 
 
-## Tabla origen covid 19
+### Tabla origen covid 19
 
 ```{r}
 t2 <- sort(table(datosEncuesta$origen_covid_19),decreasing = TRUE)
@@ -515,7 +540,7 @@ p2 <- t2/sum(t2) * 100
 p2
 
 ```
-## Grafica origen covid 19
+### Grafica origen covid 19
 
 ```{r fig.height = 9, fig.width =9}
 parametros_anteriores <- par(no.readonly = TRUE)
@@ -552,7 +577,7 @@ OR <-summary(datosEncuesta$origen_covid_19)
 OR
 ```
 
-## PAPA vs origen covid 19
+### PAPA vs origen covid 19
 
 ```{r fig.height=9, fig.width=9}
 
@@ -598,7 +623,10 @@ abline(h = mean(datosEncuesta$PAPA, na.rm = TRUE),
 par(param_ant)
 ```
 
-## Analisis exploratorio de la variable cree en las estadísticas de gobierno
+## Análisis de las estadísticas de gobierno
+
+
+### Analisis exploratorio de la variable cree en las estadísticas de gobierno
 
 TABLA.
 
@@ -614,7 +642,7 @@ p3 <- t3/sum(t3) * 100
 p3
 
 ```
-GRAFICA.
+### Grafica estadisticas de gobierno
 
 ```{r}
 par(bg="#E6E6FA")
@@ -651,7 +679,7 @@ gov<-summary(datosEncuesta$estad_gov)
 gov
 ```
 
-## PAPA vs estadisticas de gobierno
+### PAPA vs estadisticas de gobierno
 
 ```{r}
 with(datosEncuesta, boxplot(PAPA ~ estad_gov,
@@ -664,7 +692,9 @@ abline(h = mean(datosEncuesta$PAPA, na.rm = TRUE),
        col = "blue")
 ```
 
-## Estrato
+## Analisis estrato
+
+### Analisis descriptivo de la variable Estrato
 De esta grafica se puede observar que con un 44.2% la mayoria de los estudiantes matriculados en la materia (EDAED) son estrato 3 (medio), siguiendole el estrato 2 con un 34.3% y ademas de ello, en esta materia no se ecuentra ningun estudiante matriculado de estrato 6.
 
 
@@ -678,6 +708,8 @@ P1
 P11
 ```
 
+### Gráfica estrato
+
 ```{r}
 par(bg ="#D7D7D7")
 porcentaje <- round(P11,1)
@@ -690,6 +722,9 @@ legend("topleft",paste(c("0","1","2","3","4","5"),
        cex = 0.8, fill = color)
 
 ```
+
+### PAPA vs estrato
+
 ```{r}
 par(bg ="#D7D7D7")
 param_ant <- par(no.readonly = TRUE)
@@ -706,9 +741,9 @@ with(datosEncuesta, boxplot(PAPA ~ estrato,
  De esta relacion entre las variables Estrato y PAPA, se puede observar que en el estrato 0, se encuentra una persona, la cual tiene un PAPA igual a 3.0. En estrato 1, se encuentran 17 personas que tienen un  PAPA promedio entre 3.4 y 3.9, sin embargo la mayor parte de estas personas se acomula entre 3.6 y 3.9. En el estrato 2 se encuentran 45 personas,las cuales tienen un PAPA promedio entre 3.3 y 3.9, sin embargo hay una persona con un PAPA mayor a 4.5 y se sale de este promedio, por esta razon es considerado un dato atipico. En el estrato 3 se concentran la mayor parte de los estudiantes con un PAPA promedio entre 3.5 y 3.9, en este estrato tambien se encuentran datos atipicos con un PAPA superior a 4.5. En el estrato 4 se encuentran 9 personas con un PAPA promedio entre 3.6 y 3.8, encontrando es est tabien un  dato atipico con un PAPA promedio superior a 4.0. En el estrato 5 se enceuntra solo una persona con un PAPA promedio igual a 3.8. De esta grafica podemos concluir que siendo el estrato 0 el mas bajo, tiene tambien el promedio PAPA mas bajo, quizas el estrato afecte directamente el PAPA.
 
 
+## Analisis del computador de mesa
 
-
-##  ¿Tiene computador de mesa?
+### Analisis exploratorio de ¿Tiene computador de mesa?
 De esta grafica se puede evidenciar que mas de la mitad de los estudiantes matriculados es la materia (EDAED) NO tienen computador de mesa.
 
 ```{r} 
@@ -738,6 +773,9 @@ text(P21+28.4, BP2, labels =paste( round(P21, 2), "%"))
 
 
 ```
+
+### Grafica PAPA vs computador de mesa
+
 ```{r}
 par(bg ="#D7D7D7")
 param_ant <- par(no.readonly = TRUE)
@@ -752,8 +790,9 @@ with(datosEncuesta, boxplot(PAPA ~ computador_mesa,
 
 De esta relacion entre las variables PAPA y si tiene o no computador de mesa, se puede evidenciar que no afecta el PAPA, ya que ambas se encuentran en un mismo promedio.
 
+## Análisis computador portatil
 
-## ¿Tiene computador portatil?
+### Análisis exploratorio ¿Tiene computador portatil?
 
 
 De esta grafica  se puede evidenciar con un 86.4% que  hay una gran cantidad de estudiantes que tienen computador portatil,siendo este el mas popular en los ultimos años por su facilidad y comodidad para llevarlo a todas partes.
@@ -782,7 +821,7 @@ legend("topright",paste(c("Si", "No"),
 
 ```
 
-## PAPA vs computador portatil
+### PAPA vs computador portatil
 
 ```{r}
 par(bg ="#D7D7D7")
@@ -797,7 +836,9 @@ with(datosEncuesta, boxplot(PAPA ~ portatil,
 
 De esta relacion entre las variables PAPA y si tiene o no computador portatil se puede evidenciar que no afecta la una a la otra, ambas se cuentran entre un rango del mismo promedio y ambas tienen datos atipicos.
 
-## ¿De quién es el portátil?
+## Analisis de quien es el portatil
+
+### Analisis exploratorio ¿De quién es el portátil?
 
 Se hizo una distribución para saber de quién es el portátil, se obtuvieron los
 siguientes resultados.
@@ -814,7 +855,7 @@ La siguiente tabla es de porcentajes de acuerdo a los resultados obtenidos
 ```{r}
 t1/sum(t1)*100
 ```
-## Diagrama de barras ¿De quién es el portátil?
+### Diagrama de barras ¿De quién es el portátil?
 
 ```{r}
 plot(seq(0, 4, length.out = 120), seq(0, 120, length.out = 120), type = "n",
@@ -846,7 +887,7 @@ text(bp1, c(5, 20, 103),
 
 - Una persona alquiló un computador portátil.
 
-## Diagrama de caja PAPA vs ¿De quién es el portátil?
+### Diagrama de caja PAPA vs ¿De quién es el portátil?
 
 Cuando se hace el analisis entre estas variables obtenemos estos resultados:
 
@@ -878,14 +919,13 @@ t22
 ```
 ```{r}
 t22<-table(datosEncuesta$internet)
-t22Porcentaje <-t2/sum(t2)*100 -> t2
+t22/sum(t22)*100
+
 ```
 
-```{r}
-t2
-```
+## Análisis de la variable internet
 
-## Analisis exploratorio de la variable internet
+### Analisis exploratorio de la variable internet
 
 En este diagrama podemos observar que todas las personas encuestadas tienen
 internet.
@@ -901,7 +941,7 @@ t22/sum(t22)*100
 
 El 100% de la personas encuestadas tienen internet.
 
-## Diagrama de caja PAPA vs Internet
+### Diagrama de caja PAPA vs Internet
 
 ```{r}
 param_ant <- par(no.readonly = TRUE)
@@ -925,7 +965,7 @@ table(datosEncuesta$`¿De quien es el internet?`)
 t3 <- table(datosEncuesta$`¿De quien es el internet?`)
 t3/sum(t3)*100
 ```
-## Diagrama de barras ¿De quién es el internet?
+### Diagrama de barras ¿De quién es el internet?
 
 ```{r}
 bp3<-barplot(t3,
@@ -956,7 +996,7 @@ en cantidad por internet propio.
 
 - Solo una persona de las que fueron encuestadas posee internet de contrabando.
 
-## Diagrama de bigotes PAPA vs ¿De quién es el internet?
+### Diagrama de bigotes PAPA vs ¿De quién es el internet?
 
 ```{r}
 par(mar = c(10, 6, 4, 4))
@@ -985,6 +1025,16 @@ En varias preguntas como si tienen internet o computador hubiera sido convenient
 pregunta aparte preguntar de quien es el internet, para tener mejor clasificada la variable.
 
 
+# Conclusiones
+
+Aunque se crea que hay variables que a primera vista no tienen relación, cuando se hace el analisis exploratorio, se puede encontrar
+una relación que estaba oculta.
+
+Se debe tener cuidado al sacar conclusiones con pocos datos ya que estas pueden intodudcir un sesgo, asi mismo pasa con los datos
+erroneos estos tambien llevan a conclusiones erradas.
+
+Ya que los datos no siempre llegan de una manera práctica para hacer un análisis primero hay que hacer una verificación y limpieza
+para realizar el análisis.
 
 
 
