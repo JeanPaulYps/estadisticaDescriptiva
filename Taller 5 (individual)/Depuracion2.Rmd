@@ -1,0 +1,113 @@
+---
+title: "Depuración de la base de datos"
+author: "Jean Paul Yepes"
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(knitr)
+```
+
+```{r}
+datosAccidentes <- read.csv("Accidentalidad_con_motos_municipio_de_Medell_n_actualizado_a_julio_2020.csv",
+                    encoding = "UTF-8",
+                    stringsAsFactors = FALSE)
+```
+
+# Problemas con las fechas 
+
+Al revisar los datos, se evidencia que hay una inconsistencia en los datos, debido a que hay una columna para 
+las fechas y otra columna para las horas, aunque la columna fechas contiene tambien una hora, esta hora no es
+correcta y se podría corregir esta columna solo dejando la fecha del accidente y la hora aparte.
+
+```{r}
+muestraFechaHoraIncorrecta = datosAccidentes %>% select("FECHA_ACCIDENTE")
+knitr::kable(head(muestraFechaHoraIncorrecta) , col.names = c("FECHA_ACCIDENTE"), caption = "Table 1: columna fecha del accidente")
+```
+
+```{r}
+fixHours <- function(dateBroken) {
+    dateFixed = as.Date(dateBroken, "%d/%m/%Y %I:%M:%S %p")
+    if(is.na(dateFixed))
+    {
+      dateFixed = as.Date(dateBroken, "%m/%d/%Y %I:%M:%S %p")
+    }
+    return (as.character(dateFixed))
+      
+}
+```
+
+
+
+```{r}
+fechaDelAccidenteEnArchivo = datosAccidentes$FECHA_ACCIDENTE
+print(sum(is.na(fechaDelAccidenteEnArchivo)))
+fechaDelAccidenteEnArchivoCorregida = as.Date(fechaDelAccidenteEnArchivo, "%m/%d/%Y %I:%M:%S %p") 
+datosAccidentes$FECHA_ACCIDENTE = as.Date(fechaDelAccidenteEnArchivoCorregida)
+```
+
+```{r}
+knitr::kable(head( datosAccidentes %>% select("FECHA_ACCIDENTE")) , col.names = c("FECHA_ACCIDENTE"), caption = "Table 2: columnas fecha arreglada")
+```
+
+
+```{r}
+IsDate = function(mydate, date.format = "%H:%M:%S") {
+  tryCatch(!is.na(as.Date(mydate, date.format)),  
+           error = function(err) {FALSE})  
+}
+
+```
+
+
+
+```{r}
+horas = datosAccidentes$HORA_ACCIDENTE
+horasConFormatoIncorrecto = head(datosAccidentes$HORA_ACCIDENTE[!IsDate(horas)])
+knitr::kable(horasConFormatoIncorrecto , col.names = c("HORA_ACCIDENTE"), caption = "Table 3: columna horas con formato incorrecto")
+```
+
+
+```{r}
+
+fixHours = function(hour)
+{
+  if(IsDate(hour))
+  {
+      return (hour)
+  }
+  else
+  {
+    regex = "(?<=[a-zA-Z])[0-9]{2}:[0-9]{2}:[0-9]{2}"
+    return(str_extract(hour, regex))
+  }
+}
+
+datosAccidentes$HORA_ACCIDENTE = sapply(horas, fixHours)
+```
+
+
+
+
+```{r}
+knitr::kable(head(datosAccidentes$HORA_ACCIDENTE[!IsDate(horas)]) , col.names = c("HORA_ACCIDENTE"), caption = "Table 4: columna horas con formato arreglado")
+```
+
+
+```{r}
+datosConCoordenadas <- read.csv("Datos_csv_excel1.csv",
+                    encoding = "UTF-8",
+                    stringsAsFactors = FALSE, sep = ";")
+
+```
+
+
+
+

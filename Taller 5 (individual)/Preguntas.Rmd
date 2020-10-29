@@ -14,3 +14,37 @@ knitr::opts_chunk$set(echo = FALSE,
 library(tidyverse)
 ```
 
+```{r}
+print(summary(as.factor(datosAccidentes$DIRECCIÓN)))
+direcciones <- datosAccidentes$DIRECCIÓN
+
+```
+
+
+```{r}
+calles <- str_extract(direcciones, "[C|c]alle\\s+[0-9]*(?:\\s+\\w(?=\\s))?");
+#na.omit(calles)
+calles <- calles[!is.na(calles)]
+#print(summary(as.factor(calles)))
+s <- summary(as.factor(calles))
+#print(s)
+#print(sort(s))
+print(s[order(s, decreasing = TRUE)])
+```
+
+```{r}
+ "knitr::kable(summary(as.factor(datosAccidentes$DÍA.DE.LA.SEMANA)), col.names=c('Cantidad'))"
+ "knitr::kable(summary(as.factor(datosAccidentes$CLASE.DE.VEHICULO)), col.names=c('Cantidad'))"
+ "knitr::kable(summary(as.factor(datosAccidentes$TIPO.DE.SERVICIO)), col.names=c('Cantidad'))"
+ "knitr::kable(summary(as.factor(datosAccidentes$TIPO.DE.VICTIMA)), col.names=c('Cantidad'))"
+"knitr::kable(summary(as.factor(datosAccidentes$SEXO)), col.names=c('Cantidad'))"
+ "knitr::kable(summary(as.factor(datosAccidentes$ESTADO.DE.BEODEZ)), col.names=c('Cantidad'))"
+ "knitr::kable(summary(as.factor(datosAccidentes$RESULTADO.DE.BEODEZ)), col.names=c('Cantidad'))"
+ "knitr::kable(summary(as.factor(datosAccidentes$GRAVEDAD)), col.names=c('Cantidad'))"
+"knitr::kable(summary(as.factor(datosAccidentes$CLASE.DE.ACCIDENTE)), col.names=c('Cantidad'))"
+ "knitr::kable(summary(as.factor(datosAccidentes$CAUSA)), col.names=c('Cantidad'))"
+ "knitr::kable(summary(as.factor(datosAccidentes$DIRECCIÓN)), col.names=c('Cantidad'))"
+ "knitr::kable(summary(as.factor(datosAccidentes$BARRIO)), col.names=c('Cantidad'))"
+ "knitr::kable(summary(as.factor(datosAccidentes$AREA)), col.names=c('Cantidad'))"
+```
+

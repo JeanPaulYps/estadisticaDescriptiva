@@ -23,6 +23,16 @@ datosAccidentes <- read.csv("CodigoProfesor/Accidentalidad_Envigado_2016___2017_
 ```
 
 ```{r}
+fixUpperAndLowerCases = function (text)
+{
+  return (stringr::str_to_title((trimws(tolower(text)))))
+}
+```
+
+
+
+
+```{r}
 fechaDeAccidente <- datosAccidentes$FECHA
 ```
 
@@ -36,7 +46,8 @@ dates <- as.Date(fechaDeAccidente, "%d/%m/%Y")
 ```
 
 ```{r}
-print(dates[100:200])
+#print(dates[100:200])
+knitr::kable(dates[190:200], col.names = c("Fechas"), caption = "Table i: fechas")
 ```
 
 ```{r}
@@ -44,10 +55,6 @@ fechaDeAccidente[is.na(dates)][0:10]
 ```
 
 
-
-```{r}
-head(dates)
-```
 
 
 ```{r}
@@ -164,5 +171,53 @@ estado = fixEstadoDeBeodez(estado)
 print(summary(as.factor(estado)))
 
 ```
+
+
+```{r}
+summaryResultadoBeodez = summary(as.factor(datosAccidentes$RESULTADO.DE.BEODEZ))
+knitr::kable((summaryResultadoBeodez), col.names=c('Cantidad'))
+```
+
+
+
+```{r}
+summaryGravedad = summary(as.factor(datosAccidentes$GRAVEDAD))
+knitr::kable(sortSummaryByQuantity(summaryGravedad), col.names=c('Cantidad'))
+```
+
+
+
+
+```{r}
+summaryClaseDeAccidente = summary(as.factor(datosAccidentes$CLASE.DE.ACCIDENTE))
+knitr::kable(sortSummaryByQuantity(summaryClaseDeAccidente), col.names=c('Cantidad'))
+```
+
+
+```{r}
+summaryCausa = summary(as.factor(datosAccidentes$CAUSA))
+knitr::kable(sortSummaryByQuantity(summaryCausa), col.names=c('Cantidad'))
+```
+
+
+```{r}
+summaryDireccion = summary(as.factor(datosAccidentes$DIRECCIÓN))
+knitr::kable(sortSummaryByQuantity(summaryDireccion) , col.names=c('Cantidad'))
+```
+
+
+```{r}
+summaryBarrio = summary(as.factor(datosAccidentes$BARRIO))
+knitr::kable(sortSummaryByQuantity(summaryBarrio), col.names=c('Cantidad'))
+```
+
+
+
+```{r}
+summaryArea = summary(as.factor(datosAccidentes$AREA))
+knitr::kable(sortSummaryByQuantity(summaryArea) , col.names=c('Cantidad'))
+```
+
+
 
 
