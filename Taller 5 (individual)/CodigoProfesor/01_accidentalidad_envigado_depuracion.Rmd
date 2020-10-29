@@ -1,0 +1,100 @@
+---
+title: "Accidentalidad de Envigado (Depuración)"
+author: "Kenneth Roy Cabrera Torres"
+date: "Viernes, 9 de octubre de 2020"
+output: 
+  html_document: 
+    css: estilo1.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+
+```{r}
+library(summarytools)
+library(tidyverse)
+```
+
+
+```{r}
+acc_env <- read.csv("Accidentalidad_Envigado_2016___2017_y_Primer_Semestre_2018.csv",
+                    encoding = "UTF-8")
+```
+
+
+## Resumen incial de variable por variable
+
+```{r}
+options(width = 200)
+dfSummary(acc_env)
+```
+
+```{r}
+## Función que intercambia los valores de mes y años si los encuentra 
+## inconsistentes en el orden escrito.
+
+intercambia <- function(x){
+  if(as.numeric(x[2]) > 12){
+    aux <- x[1] 
+    x[1] <- x[2]
+    x[2] <- aux
+  }
+  fecha_corr <- paste(x, collapse = "/")
+  return(fecha_corr)
+}
+
+```
+
+
+```{r}
+# Crea una lista con la fecha separando cada componente
+fecha_temp <- strsplit(acc_env$FECHA, "/")
+# Aplica la función de intercambio a cada elemento de la lista
+acc_env$FECHA <- sapply(fecha_temp, intercambia)
+```
+
+
+## Resumen variable por variable después de la depuración.
+
+```{r}
+acc_env <- acc_env %>% 
+  mutate(RADICADO = factor(RADICADO),
+         FECHA2 = as.Date(FECHA, "%d/%m/%Y"),
+         HORA2 = gsub("\\.", "", HORA),
+         FECHA_COMPLETA = as.POSIXct(strptime(paste(FECHA2, HORA2),
+                                              "%Y-%m-%d %I:%M %p")),
+         DÍA.DE.LA.SEMANA = 
+           factor(DÍA.DE.LA.SEMANA, 
+                  levels = c("Domingo",
+                             "Lunes", "Martes",
+                             "Miércoles", "Jueves",
+                             "Viernes", "Sábado")),
+         SEXO = tolower(SEXO),
+         ESTADO.DE.BEODEZ = tolower(ESTADO.DE.BEODEZ)) %>% 
+  separate(Coordenadas, into = c(NA, "Y", "X", NA), sep = "[\\(,\\)]") %>% 
+  mutate(X = as.numeric(X),
+         Y = as.numeric(Y))
+```
+
+
+```{r}
+dfSummary(acc_env)
+```
+
+```{r}
+# Guarda la base depurada en formato ".RData".
+save(acc_env, file = "accidentalidad_Envigado.RData")
+```
+
+```{r}
+# Borra todos los objetos del espacio de trabajo.
+rm(list = ls())
+```
+
+
+
+

@@ -1,0 +1,168 @@
+---
+title: "Depuración de la base de datos"
+author: "Jean Paul Yepes"
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(knitr)
+```
+
+
+```{r}
+datosAccidentes <- read.csv("CodigoProfesor/Accidentalidad_Envigado_2016___2017_y_Primer_Semestre_2018.csv",
+                    encoding = "UTF-8",
+                    stringsAsFactors = FALSE)
+```
+
+```{r}
+fechaDeAccidente <- datosAccidentes$FECHA
+```
+
+```{r}
+head(fechaDeAccidente)
+```
+
+
+```{r}
+dates <- as.Date(fechaDeAccidente, "%d/%m/%Y") 
+```
+
+```{r}
+print(dates[100:200])
+```
+
+```{r}
+fechaDeAccidente[is.na(dates)][0:10]
+```
+
+
+
+```{r}
+head(dates)
+```
+
+
+```{r}
+fixDates <- function(dateBroken) {
+    dateFixed = as.Date(dateBroken, "%d/%m/%Y")
+    if(is.na(dateFixed))
+    {
+      dateFixed = as.Date(dateBroken, "%m/%d/%Y")
+    }
+    return (as.character(dateFixed))
+      
+}
+```
+
+```{r}
+badDate = "01/15/2018"
+goodDate = "04/01/2018"
+fixedDateBad = fixDates(badDate)
+fixedDateGood = fixDates(goodDate)
+print(fixedDateBad)
+print(fixedDateGood)
+```
+
+```{r}
+fixedDates <- sapply(datosAccidentes$FECHA, fixDates)
+datosAccidentes$FECHA = fixedDates
+print(head(datosAccidentes$FECHA))
+```
+
+
+```{r}
+claseDeVehiculo <- datosAccidentes$CLASE.DE.VEHICULO
+```
+
+```{r}
+print(summary(claseDeVehiculo))
+```
+
+
+
+
+```{r}
+fixSinRegistro = function (text)
+{
+  if (trimws(tolower(text)) == "sin registro" )
+  {
+    return ("Sin registro")
+  }
+  return (text)
+}
+```
+
+```{r}
+fixedSexo <- sapply(as.character(datosAccidentes$SEXO) , fixSinRegistro)
+datosAccidentes$SEXO = fixedSexo
+print(summary(as.factor(datosAccidentes$SEXO)))
+```
+
+
+```{r}
+print(sum(datosAccidentes$Coordenadas != "" ))
+print(length(datosAccidentes$Coordenadas))
+```
+
+
+```{r}
+sortSummaryByQuantity = function (summaryObj)
+{
+  return (summaryObj[order(summaryObj, decreasing = TRUE)] )
+}
+```
+
+
+```{r}
+
+knitr::kable(summary(as.factor(datosAccidentes$DÍA.DE.LA.SEMANA)), col.names=c('Cantidad'))
+```
+
+
+```{r}
+summaryDatosAccidentes = summary(as.factor(datosAccidentes$CLASE.DE.VEHICULO))
+knitr::kable(sortSummaryByQuantity(summaryDatosAccidentes) , col.names=c('Cantidad'))
+```
+
+
+```{r}
+summaryTipoServicio = summary(as.factor(datosAccidentes$TIPO.DE.SERVICIO))
+knitr::kable(sortSummaryByQuantity(summaryTipoServicio) , col.names=c('Cantidad'))
+```
+
+```{r}
+summaryTipoVictima = summary(as.factor(datosAccidentes$TIPO.DE.VICTIMA))
+knitr::kable(sortSummaryByQuantity(summaryTipoVictima) , col.names=c('Cantidad'))
+```
+
+
+```{r}
+summarySexo = summary(as.factor(datosAccidentes$SEXO))
+knitr::kable(sortSummaryByQuantity(summarySexo), col.names=c('Cantidad'))
+```
+
+
+
+```{r}
+# Comentar lo de que estaba en lowerCase
+summaryEstadoDeBeodez = summary(as.factor(datosAccidentes$ESTADO.DE.BEODEZ))
+#knitr::kable(sortSummaryByQuantity(summaryEstadoDeBeodez) , col.names=c('Cantidad'))
+fixEstadoDeBeodez = function (text)
+{
+  return (stringr::str_to_title((trimws(tolower(text)))))
+}
+estado = datosAccidentes$ESTADO.DE.BEODEZ
+estado = fixEstadoDeBeodez(estado)
+print(summary(as.factor(estado)))
+
+```
+
+

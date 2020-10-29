@@ -1,0 +1,75 @@
+---
+title: "Anlisis Exploratorio de la Accidentalidad en Envigado (graficacion)"
+author: "Kenneth Roy Cabrera Torres"
+date: "Viernes, 23 de octubre de 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+```{r}
+load("accidentalidad_Envigado.RData")
+```
+
+```{r}
+library(tidyverse)
+library(sf)
+```
+
+
+```{r}
+acc_env_sin_na_xy <- acc_env %>% 
+  filter(!is.na(X) | !is.na(Y))
+```
+
+
+```{r}
+
+mapa_acc_envigado <- st_as_sf(acc_env_sin_na_xy, coords = c("X", "Y"),
+                              crs = 4326 )
+```
+
+
+```{r}
+plot(st_geometry(mapa_acc_envigado))
+```
+
+
+```{r}
+plot(st_geometry(mapa_acc_envigado), axes = TRUE)
+```
+
+```{r}
+plot(st_geometry(mapa_acc_envigado), axes = TRUE, las = 1)
+```
+
+## Distribución espacial de la hora de accidentalidad.
+
+¿Cómo se distribuye espacialmente la hora de accidentalidad?
+
+```{r}
+accidentes_env <- acc_env %>% 
+  filter(!is.na(X) | !is.na(Y)) %>% 
+  mutate(hora_acc = as.numeric(format(FECHA_COMPLETA, "%H"))) %>% 
+  group_by(RADICADO) %>% 
+  summarise(X = mean(X, na.rm = TRUE),
+            Y = mean(Y, na.rm = TRUE),
+            hora_acc = mean(hora_acc, na.rm = TRUE))
+```
+
+
+
+```{r}
+accidentes_env_sf <- st_as_sf(accidentes_env, coords = c("X", "Y"),
+                              crs = 4326 )
+```
+
+
+```{r}
+plot(accidentes_env_sf["hora_acc"], pch = 19)
+```
+

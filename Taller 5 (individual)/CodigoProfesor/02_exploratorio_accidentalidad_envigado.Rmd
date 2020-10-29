@@ -1,0 +1,152 @@
+---
+title: "Anlisis Exploratorio de la Accidentalidad en Envigado"
+author: "Kenneth Roy Cabrera Torres"
+date: "Viernes, 16 de octubre de 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+```{r}
+load("accidentalidad_Envigado.RData")
+```
+
+```{r}
+library(tidyverse)
+library(sf)
+```
+
+
+
+## Resumen de comandos más utilizados en manejo de base de datos:
+
+### select()
+
+```{r}
+acc_env1 <- acc_env %>% 
+  select(X, Y)
+```
+
+### filter()
+
+```{r}
+acc_env2 <- acc_env %>% 
+  filter(SEXO == "masculino")
+```
+
+Se requiere obtener el radicado  de la base de datos, 
+únicamente los hombres con estado de beodez "si"
+
+```{r}
+acc_env3 <- acc_env %>% 
+ select(RADICADO, SEXO, ESTADO.DE.BEODEZ) %>% 
+ filter(SEXO == "masculino" & ESTADO.DE.BEODEZ == "si" )
+```
+
+
+### mutate()
+
+```{r}
+acc_env <- acc_env %>% 
+  mutate(mes = format(FECHA_COMPLETA, "%B"),
+         hora2 = format(FECHA_COMPLETA, "%H"))
+```
+
+### group_by()
+
+```{r}
+acc_env <- acc_env %>% 
+  group_by(BARRIO) %>% 
+  mutate(num_accidentados = n())
+```
+
+
+### summarise()
+
+Se requiere una tabla con el número de accidentados
+por barrio.
+
+
+```{r}
+acc_env_x_barrio <- acc_env %>% 
+  group_by(BARRIO) %>% 
+  summarise(num_accidentados = n()) %>% 
+  arrange(desc(num_accidentados))
+```
+
+### slice()
+
+```{r}
+acc_env_x_barrio <- acc_env %>% 
+  group_by(BARRIO) %>% 
+  summarise(num_accidentados = n()) %>% 
+  arrange(desc(num_accidentados)) %>% 
+  slice(1:5)
+```
+
+
+```{r}
+acc_env_accidentes <- acc_env %>% 
+  group_by(RADICADO, GRAVEDAD) %>% 
+  summarise(num_accidentados = n())
+```
+
+
+
+
+
+
+
+
+
+
+
+## Número de víctimas por género por año.
+
+¿Cómo se comporta mes a mes el número de víctimas por género?
+
+```{r}
+genero_x_año <- acc_env %>% 
+  group_by(SEXO, año_mes = format(FECHA_COMPLETA, "%Y-%m")) %>% 
+  summarise(n = n())
+genero_x_año
+```
+
+```{r}
+ggplot(genero_x_año, aes(año_mes, n, col = SEXO)) +
+  geom_line(aes(group = SEXO)) +
+  theme(axis.text.x=element_text(angle=90, hjust=1))
+```
+
+
+
+## Hora de mayor accidentalidad.
+
+¿Se observa diferencia del comportamiento de la hora de accidentalidad 
+(cantidad de accidentes) entre los años registrados?
+
+```{r}
+acc_env_x_accidente <- acc_env %>% 
+  group_by(RADICADO, FECHA_COMPLETA) %>% 
+  summarise(n = n()) %>% 
+  mutate(hora = as.integer(format(FECHA_COMPLETA, "%H")) +
+                as.integer(format(FECHA_COMPLETA, "%M")) / 60)
+```
+
+
+```{r}
+ggplot(acc_env_x_accidente, aes(hora)) +
+  geom_histogram() +
+  facet_wrap(~ format(FECHA_COMPLETA, "%Y")) +
+  scale_x_continuous(breaks = seq(0, 24)) +
+  theme(axis.text.x=element_text(angle=90, hjust=1, size = 5)) +
+  geom_vline(xintercept = seq(0, 24, 2), col = "blue")
+```
+
+
+
+

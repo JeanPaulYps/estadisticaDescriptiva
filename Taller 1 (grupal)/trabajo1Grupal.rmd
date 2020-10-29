@@ -39,7 +39,7 @@ datos <- read.csv2("Encuesta_habitos.csv",
 ## Limpieza de las carreras
 
 Los nombres de las carreras en los datos no estan de una manera unificada, 
-como se puede evidenciar en la tabla 1 algunos escriben la misma carrera de modo distinto, 
+como se puede evidenciar en la tabla algunos escriben la misma carrera de modo distinto, 
 por lo que esta columna se limpiará unificando los nombres de las carreras de un solo modo.
 
 ```{r}
@@ -47,10 +47,10 @@ carreras <- datosEncuesta$carrera
 muestraCarreras <- unique(carreras)
 muestraCarreras <- str_extract_all(muestraCarreras, regex("est.*", ignore_case = TRUE ), simplify = TRUE)
 muestraCarreras <- muestraCarreras[muestraCarreras != ""]
-knitr::kable(muestraCarreras, "simple", col.names=c("Carreras"), caption = "Tabla 1")
+knitr::kable(muestraCarreras, "simple", col.names=c("Carreras"))
 ```
 
-En la tabla 2 podemos ver el resultado de unificar el resultado de corregir los nombres de las carreras,
+En la tabla siguiente podemos ver el resultado de unificar el resultado de corregir los nombres de las carreras,
 ahora todas las carreras tienen un nombre único y no hay ambiguedad sobre las carreras que estan presentes.
 
 ```{r}
@@ -63,19 +63,19 @@ carreras <- str_replace(carreras, regex(".*industrial.*", ignore_case = TRUE ), 
 
 datosEncuesta$carrera = carreras
 
-knitr::kable(unique(carreras), col.names=c("Carreras"), caption = "Tabla 2")
+knitr::kable(unique(carreras), col.names=c("Carreras"))
 ```
 
 ## Limpieza de la variable computador propio
 
-En la tabla 3 tenemos los posibles valores que podemos obtener con los computadores propios, como
+En la tabla tenemos los posibles valores que podemos obtener con los computadores propios, como
 se puede evidenciar la variable toma cuatro valores, pero cuando las personas tienen un computador
 casi siempre suelen ser de ellos, por lo que solo vamos a dejar que las variables tomen el valor 
 de si o no.
 
 ```{r}
 computadorPropio <- datosEncuesta$computador_mesa
-knitr::kable(summary(as.factor(computadorPropio) ), col.names=c("Cantidad"), caption = "Tabla 3")
+knitr::kable(summary(as.factor(computadorPropio) ), col.names=c("Cantidad"))
 ```
 
 
@@ -84,23 +84,23 @@ computadorPropio <- str_replace(computadorPropio, regex("si.*", ignore_case = TR
 
 datosEncuesta$computador_mesa = computadorPropio
 
-knitr::kable(summary(as.factor(computadorPropio) ), col.names=c("Cantidad"), caption = "Tabla 4")
+knitr::kable(summary(as.factor(computadorPropio) ), col.names=c("Cantidad"))
 #summary(as.factor(computadorPropio) )
 ```
 
 
 ## Limpieza datos smartphone
 
-Del mismo modo en la tabla 5 podemos ver que las otras categorías del si no aportan mucha información
+Del mismo modo en la siguiente tabla podemos ver que las otras categorías del si no aportan mucha información
 por lo que es mas conveniente unificar esta categoría en una sola y asumir que el celular que se usa 
 es de ellos.
 
 ```{r}
 smartphone <- datosEncuesta$smartphone
-knitr::kable(summary(as.factor(smartphone) ), col.names=c("Cantidad"), caption = "Tabla 5")
+knitr::kable(summary(as.factor(smartphone) ), col.names=c("Cantidad"))
 ```
 
-En la tabla 6 podemos ver los resultados.
+En la siguiente tabla podemos ver los resultados.
 
 
 ```{r}
@@ -108,7 +108,7 @@ smartphone <- str_replace(smartphone, regex("si.*", ignore_case = TRUE ), "Si")
 
 datosEncuesta$smartphone = smartphone
 
-knitr::kable(summary(as.factor(smartphone) ), col.names=c("Cantidad"), caption = "Tabla 6")
+knitr::kable(summary(as.factor(smartphone) ), col.names=c("Cantidad"))
 ```
 
 ## Limpieza de datos portatil
@@ -117,12 +117,12 @@ Para la limpieza de datos del portatil se separo esta variable en dos columnas.
 La primera si tiene portatil, la segunda para saber de quien es el portatil.
 
 ```{r}
-knitr::kable(head(datosEncuesta %>% select("portatil") ), caption = "Tabla 6" )
+knitr::kable(head(datosEncuesta %>% select("portatil") ) )
 ```
 
 ```{r}
 datosEncuesta <- separate(datosEncuesta, col = portatil, into = c("portatil", "¿De quien es el portatil?"), sep = ",")
-knitr::kable(head(datosEncuesta %>% select("portatil", "¿De quien es el portatil?") ), caption = "Tabla 7")
+knitr::kable(head(datosEncuesta %>% select("portatil", "¿De quien es el portatil?") ))
 ```
 
 ## Limpieza de datos internet
@@ -131,12 +131,12 @@ Para la limpieza de datos del internet se separo esta variable en dos columnas.
 La primera si tiene portatil, la segunda para saber de quien es el portatil.
 
 ```{r}
-knitr::kable(head(datosEncuesta %>% select("internet") ), caption = "Tabla 7" )
+knitr::kable(head(datosEncuesta %>% select("internet") ) )
 ```
 
 ```{r}
 datosEncuesta <- separate(datosEncuesta, col = internet, into = c("internet", "¿De quien es el internet?"), sep = "[.|,]")
-knitr::kable(head(datosEncuesta %>% select("internet", "¿De quien es el internet?") ), caption = "Tabla 8")
+knitr::kable(head(datosEncuesta %>% select("internet", "¿De quien es el internet?") ))
 ```
 
 ## Correccion de las fechas 
@@ -162,7 +162,7 @@ fechas_con_problemas$fecha_nac_correcta <- c("05/09/1999", "08/10/1996",
 
 datosEncuesta$fecha_nac[fechas_con_problemas$consecutivo] <- fechas_con_problemas$fecha_nac_correcta
 
-knitr::kable(fechas_con_problemas, caption = "Tabla 9")
+knitr::kable(fechas_con_problemas)
 ```
 
 
@@ -176,7 +176,8 @@ knitr::kable(fechas_con_problemas, caption = "Tabla 9")
 
 Los habitos de estudio mas comunes en los estudiantes son: tomar pasuas cada cierto tiempo, resolver ejercicios
 sin ver las respuestas y tomar notas de los ejercicios en clase. Con respecto a como los estudiante estudian
-parece que ellos prefieren estudiar con amigos algunas veces.
+parece que ellos prefieren estudiar con amigos algunas veces. Aunque los habitos mas efectivos son establecer
+horarios de estudio y resolver los ejercicios anticipadamente.
 
 ### Análisis habitos contradictorios
 
@@ -991,6 +992,8 @@ axis(2, at = c(0, 20, 40, 60, 80, 100),
                     ))
 
 ```
+
+
 - La mayor cantidad de personas encuestadas poseen internet familiar, seguido 
 en cantidad por internet propio.
 
@@ -1011,6 +1014,36 @@ internet_papa<-with(datosEncuesta, boxplot(PAPA ~ `¿De quien es el internet?`,
                             cex.axis=0.8)
 
 ```
+
+# Variables mas relevantes
+
+En el siguiente grafico anlizamos las variables mas relevantes con el PAPA y podemos observar
+que los que establecen un horario de estudio y lo cumplen tienen mejores resultados que el 
+resto, eso se puede ver ya que nadie del segundo cuartil tiene resultados malos y de hecho las personas
+que estan en este cuartil ya estan muy cerca de la mediana de las personas que respondieron la encuesta 
+y los que estan en el tercer cuartil suelen tener aun mejores resultados.
+
+En la grafica podemos observar que en el estrato 3 hay dos datos atipicos con respecto a las otras
+variables que solo tienen una o ninguna.
+
+Del diagrama se ve que las personas que estan en el estrato 2 que estan en el segundo
+quartil empiezan con resultados peores que el resto, pero del tercer quartil en adelante
+tienen muy buenos resultados y todos se agrupan en notas muy cercanas.
+
+
+```{r}
+PAPAporEstrato = habitosConPapa <- datosEncuesta %>% select(c(PAPA, estrato))
+test <- as.list(na.omit(subset(PAPAporEstrato, (estrato == 2))$PAPA))
+nombresMejoresHabitos = c(habitosDeEstudio[10], habitosDeEstudio[8], "Estrato 2", "Estrato 3")
+mejoresHabitos = c(PAPAporHabito[10][1], PAPAporHabito[8][1])
+mejoresHabitos[3] = list(na.omit(subset(PAPAporEstrato, (estrato == 2))$PAPA))
+mejoresHabitos[4] = list(na.omit(subset(PAPAporEstrato, (estrato == 3))$PAPA))
+par(mar=c(2,20,0,0))
+boxplot (mejoresHabitos, names = nombresMejoresHabitos, horizontal = T, las = 1, cex.axis =0.65, col="#606CF7", border = "#000000", frame = F, ylim = c(3,5))
+abline(v = median(na.omit(datosEncuesta$PAPA))  , col = "#F7D348" , lwd = 2, lty="dotted")
+
+```
+
 
 
 # Recomendaciones
