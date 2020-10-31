@@ -1,0 +1,245 @@
+---
+title: "Manejo de mapas"
+author: "Kenneth Roy Cabrera Torres"
+date: "Viernes, 30 de octubre de 2020"
+output: 
+  html_document: 
+    css: estilo_mapas.css
+    toc: yes
+    highlight: haddock
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Paquetes usado en el manejo de mapas.
+
+```{r}
+library(tidyverse)
+library(sf)
+library(OpenStreetMap)
+library(osmdata)
+library(ggmap)
+```
+
+
+## Lectura de un arhivo tipo "shp" (Shape o Shapefile).
+
+El el siguiente luagar se puede descargar el mapa de los barrios
+de Envigado en formato Shape o Shapefile (.shp).
+
+https://www.datos.gov.co/Ordenamiento-Territorial/Barrios-Municipio-de-Envigado/wduw-u5s7
+
+
+```{r}
+barrios_env <- 
+  read_sf("./Barrios Municipio de Envigado/geo_export_02c40250-3fb7-4273-bc5b-8c05066da85d.shp")
+```
+
+## Despliegue del mapa importado del formato ".shp".
+
+```{r}
+plot(st_geometry(barrios_env))
+```
+
+
+```{r}
+barrios_env
+```
+
+
+
+Desde este mismo lugar se puede descargar en forma de base de datos,
+la misma información pero con una columna adicional que tiene el formato
+"wkt" para objetos de tipo espacial.
+
+
+```{r}
+bd_barrios <- read.csv("Barrios.csv", encoding = "UTF-8")
+bd_barrios_sf <- st_as_sf(bd_barrios, wkt  = "the_geom")
+```
+
+
+```{r}
+plot(st_geometry(bd_barrios_sf))
+```
+
+
+```{r}
+bd_barrios_sf
+```
+
+Si se quiere añadir una variable a un mapa en formato "sf".
+
+En este caso se añade la columna NOMBREBARRIO, para tener el nombre del barrio
+sin el problema de las tildes.
+
+
+```{r}
+# En caso de añadir alguna columna de una base de datos a otra en formato sf.
+bd_barrios_2 <- st_drop_geometry(bd_barrios_sf)
+barrios_env <- barrios_env %>% 
+  left_join(bd_barrios_2 %>% select(Cod, NOMBARRIO), 
+            by = c("cod" = "Cod"))
+```
+
+```{r}
+barrios_env
+```
+
+Lectura de la base de datos de las Sedes Administrativas del
+municipio de envigado.
+
+Se pueden encontrar en:
+
+https://www.datos.gov.co/Funci-n-p-blica/Sedes-Administrativas-Municipio-de-Envigado/7nv5-fy9z
+
+Procedimiento para tomar las coordenadas y convertir la base de datos
+en un mapa. 
+
+```{r}
+sedes_admin_env <- read.csv("Sedes_Administrativas_Municipio_de_Envigado.csv")
+sedes_admin_env <- sedes_admin_env %>%
+  separate(Coordenadas, into = c(NA, "Y", "X", NA), sep = "[\\(,\\)]") %>%
+  mutate(Y = as.numeric(Y),
+         X = as.numeric(X))
+sedes_admin_env_sf <- st_as_sf(sedes_admin_env, coords = c("X", "Y"))
+```
+
+
+```{r}
+sedes_admin_env_sf
+```
+
+
+```{r}
+plot(st_geometry(sedes_admin_env_sf))
+```
+
+## Desplogue de mapa de puntos con opciones.
+
+```{r}
+st_crs(sedes_admin_env_sf) <- 4326
+plot(st_geometry(sedes_admin_env_sf), pch = 19, col = "darkblue", 
+     axes = TRUE, las = 1)
+```
+
+
+Llevar el mapa a coordenadas planas. En esta caso a CRS = 3116,
+(CRS: Coordinate Reference System) que
+corresponde al datuem Bogotá en Magnas/SIRGAS  (EPSG = 3116,
+EPSG: European Petroleum Survey Group). 
+
+https://spatialreference.org/
+
+```{r}
+st_crs(sedes_admin_env_sf)
+```
+
+```{r}
+sedes_admin_env_sf_planas <- st_transform(sedes_admin_env_sf, crs = 3116)
+plot(st_geometry(sedes_admin_env_sf_planas), axes = TRUE, 
+     las = 1)
+```
+
+## Superposición de mapas.
+
+```{r}
+plot(st_geometry(barrios_env))
+plot(st_geometry(sedes_admin_env_sf), pch = 19, col = "darkblue", add = TRUE)
+```
+
+
+## Cargar un mapa de fondo para superponer los mapas tipo vector.
+
+
+```{r}
+mapa_envig <- get_map(getbb("Envigado"), source = "osm")
+plot(mapa_envig)
+```
+
+
+```{r}
+st_crs(bd_barrios_sf) <- 4326
+```
+
+
+
+```{r}
+ggmap(mapa_envig) +
+  geom_sf(data = bd_barrios_sf,
+          inherit.aes = FALSE, 
+          fill = "transparent") +
+  geom_sf(data = sedes_admin_env_sf,
+          inherit.aes = FALSE)
+```
+
+```{r}
+load("accidentalidad_Envigado.RData")
+```
+
+
+## Cálculo del número de accidentes.
+
+```{r}
+accidentes_env <- acc_env %>% 
+  group_by(RADICADO, BARRIO) %>% 
+  summarise(num_accidentados = n())
+```
+```{r}
+accidentes_env_x_barrio <- accidentes_env %>% 
+  group_by(BARRIO) %>% 
+  summarise(num_accidentes = n(),
+            log_num_accidentes = log10(num_accidentes)) %>% 
+  mutate(barrio = tolower(BARRIO)) %>% 
+  arrange(desc(num_accidentes))
+
+accidentes_env_x_barrio$barrio <- factor(accidentes_env_x_barrio$barrio,
+                                         levels = accidentes_env_x_barrio$barrio)
+```
+
+
+```{r, fig.height=7, fig.width=6}
+ggplot(accidentes_env_x_barrio, aes(barrio, num_accidentes)) +
+  geom_bar(stat = "identity") +
+  coord_flip()
+```
+
+
+```{r, fig.height=7, fig.width=6}
+ggplot(accidentes_env_x_barrio, aes(barrio, log_num_accidentes)) +
+  geom_bar(stat = "identity") +
+  coord_flip()
+```
+
+```{r}
+bd_barrios_sf <- bd_barrios_sf %>% 
+  mutate(nombarrio = tolower(NOMBARRIO))
+```
+
+Subir la información del número de accidentes por barrio.
+
+```{r}
+bd_barrios_sf_acc <- bd_barrios_sf %>% 
+  inner_join(accidentes_env_x_barrio, by = c("nombarrio" = "barrio"))
+```
+
+```{r}
+plot(bd_barrios_sf_acc["log_num_accidentes"])
+```
+
+
+
+
+```{r}
+ggmap(mapa_envig) +
+  geom_sf(data = bd_barrios_sf_acc,
+          inherit.aes = FALSE, 
+          aes(fill = log_num_accidentes),
+          alpha = 0.6) +
+  geom_sf(data = sedes_admin_env_sf,
+          inherit.aes = FALSE) +
+   scale_fill_gradient(low = "yellow", high = "red", na.value = NA)
+```

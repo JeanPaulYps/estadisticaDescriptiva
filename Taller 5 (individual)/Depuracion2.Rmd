@@ -48,7 +48,6 @@ fixHours <- function(dateBroken) {
 
 ```{r}
 fechaDelAccidenteEnArchivo = datosAccidentes$FECHA_ACCIDENTE
-print(sum(is.na(fechaDelAccidenteEnArchivo)))
 fechaDelAccidenteEnArchivoCorregida = as.Date(fechaDelAccidenteEnArchivo, "%m/%d/%Y %I:%M:%S %p") 
 datosAccidentes$FECHA_ACCIDENTE = as.Date(fechaDelAccidenteEnArchivoCorregida)
 ```
@@ -102,11 +101,25 @@ knitr::kable(head(datosAccidentes$HORA_ACCIDENTE[!IsDate(horas)]) , col.names = 
 
 
 ```{r}
-datosConCoordenadas <- read.csv("Datos_csv_excel1.csv",
+datosConCoordenadas <- read.csv("Datos_con_coordenadas.csv",
                     encoding = "UTF-8",
                     stringsAsFactors = FALSE, sep = ";")
 
 ```
+
+```{r}
+datosAccidentes$longitud = datosConCoordenadas$longitud
+datosAccidentes$latitud = datosConCoordenadas$latitud
+```
+
+```{r}
+save(datosAccidentes, file = "datosAccidentes.RData")
+```
+
+```{r}
+rm(list = ls())
+```
+
 
 
 

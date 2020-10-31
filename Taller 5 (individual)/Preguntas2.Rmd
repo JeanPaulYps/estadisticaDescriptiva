@@ -1,0 +1,83 @@
+---
+title: "Depuración de la base de datos"
+author: "Jean Paul Yepes"
+output: html_notebook
+---
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+```
+
+
+
+```{r}
+load("datosAccidentes.RData")
+```
+
+
+
+# ¿Cuales son los 5 barrios con mas accidentes?
+
+```{r}
+#,  fig.height = 10, fig.width = 30
+barrios <- datosAccidentes %>% select(ZONA) %>% distinct
+accidentes <- datosAccidentes %>% select(ZONA) %>% group_by(ZONA) %>% count %>% arrange(desc(n))
+print(accidentes)
+#print(barrios)
+#ggplot(datosAccidentes, aes(x = as.factor(ZONA) )) +  geom_bar(color="blue") + theme(axis.text.x = element_text(angle = 90))
+headAccidentes <- head(accidentes)
+print(headAccidentes)
+
+ggplot(headAccidentes, aes(x=reorder(ZONA,n), y=n)) + 
+      geom_bar(stat = "identity") +
+      labs(x = "Barrio", y = "Cantidad de accidentes") +
+      
+      geom_hline(aes(yintercept=seq(0,25000,by=5000)), color = "gray" , linetype="dashed" )+
+      coord_flip()
+```
+
+#¿Cuales son las horas con mas accidentes?
+
+```{r}
+horas <- lubridate::hour(strptime(datosAccidentes$HORA_ACCIDENTE,"%H:%M:%S"))
+dfHoras <- as.data.frame(horas)
+dfHoras <- dfHoras %>% group_by(horas) %>% count
+#horas <- datosAccidentes %>% select(HORA_ACCIDENTE)
+#print(summary(as.factor(horas)))
+
+
+#print(lubridate::hms(horas))
+print(dfHoras)
+ggplot(dfHoras, aes(x=horas, y=n)) + 
+      geom_bar(stat = "identity") +
+      labs(x = "Hora", y = "Cantidad de accidentes") +
+      scale_x_discrete(limits=c(seq(0,24, by = 1) )) +
+      geom_hline(aes(yintercept=0 ), color = "gray" , linetype="dashed") +
+      geom_hline(aes(yintercept=3000 ), color = "gray" , linetype="dashed") +
+      geom_hline(aes(yintercept=6000 ), color = "gray" , linetype="dashed") +
+      geom_hline(aes(yintercept=9000 ), color = "gray" , linetype="dashed") 
+
+```
+
+#¿Cuales fueron las clases de accidentes mas comunes?
+
+```{r}
+clasesAccidente <- datosAccidentes %>% select(CLASE_ACCIDENTE) %>% group_by(CLASE_ACCIDENTE) %>% count %>% arrange(desc(n))
+headClasesAccidente = head(clasesAccidente, n=5)
+print(clasesAccidente)
+ggplot(headClasesAccidente, aes(x=reorder(CLASE_ACCIDENTE,desc(n)), y=n)) + 
+      geom_bar(stat = "identity") +
+      labs(x = "Barrio", y = "Cantidad de accidentes") 
+```
+
+¿Los accidentes han disminuido en el tiempo?
+
+```{r}
+anios = datosAccidentes %>% select(AÑO_ACCIDENTE) %>% group_by(AÑO_ACCIDENTE) %>% count
+print(anios)
+ggplot(anios, aes(x=AÑO_ACCIDENTE, y=n)) + 
+      geom_bar(stat = "identity")
+
+```
+
