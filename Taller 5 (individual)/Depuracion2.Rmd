@@ -99,6 +99,7 @@ datosAccidentes$HORA_ACCIDENTE = sapply(horas, fixHours)
 knitr::kable(head(datosAccidentes$HORA_ACCIDENTE[!IsDate(horas)]) , col.names = c("HORA_ACCIDENTE"), caption = "Table 4: columna horas con formato arreglado")
 ```
 
+# Agregar coordenadas a los accidentes
 
 ```{r}
 datosConCoordenadas <- read.csv("Datos_con_coordenadas.csv",
@@ -112,12 +113,66 @@ datosAccidentes$longitud = datosConCoordenadas$longitud
 datosAccidentes$latitud = datosConCoordenadas$latitud
 ```
 
+
+# Eliminar filas sin direcciones
 ```{r}
-save(datosAccidentes, file = "datosAccidentes.RData")
+knitr::kable(datosAccidentes[datosAccidentes$DIRECCION == "", c(1,7) ], caption = "Tabla 5: filas que no tienen direcciones")
+```
+
+
+# Eliminar radicados duplicados
+
+```{r}
+test = datosAccidentes
+datosAccidentes[duplicated(datosAccidentes$NRO_RADICADO), c(1,7)]
 ```
 
 ```{r}
-rm(list = ls())
+datosAccidentes = datosAccidentes[!duplicated(datosAccidentes$NRO_RADICADO),]
+```
+
+
+
+# Eliminar direcciones vacías o extrañas
+
+```{r}
+head(datosAccidentes[datosAccidentes$DIRECCION == "Calle 1 Con Carrera 1" | grepl(".*999.*", datosAccidentes$DIRECCION), c(1,7) ], 10)
+```
+
+```{r}
+count( datosAccidentes[datosAccidentes$DIRECCION == "Calle 1 Con Carrera 1" | grepl(".*999.*", datosAccidentes$DIRECCION), ])
+```
+
+```{r}
+datosAccidentes = datosAccidentes[!datosAccidentes$DIRECCION == "Calle 1 Con Carrera 1" & !grepl(".*999.*", datosAccidentes$DIRECCION), ]
+```
+
+
+
+
+# Eliminar zonas exptrañas 
+
+```{r}
+#unique(datosAccidentes[!grepl(".*COMUNA.*", datosAccidentes$ZONA) &  !grepl(".*CORREGIMIENTO.*" , datosAccidentes$ZONA), 8])
+#length(datosAccidentes[!grepl(".*COMUNA.*", datosAccidentes$ZONA) &  !grepl(".*CORREGIMIENTO.*" , datosAccidentes$ZONA), 8])
+knitr::kable(unique(datosAccidentes[!grepl(".*COMUNA.*", datosAccidentes$ZONA) &  !grepl(".*CORREGIMIENTO.*" , datosAccidentes$ZONA), 8])
+             , caption = "Tabla 5: Zonas extrañas")
+```
+
+
+
+```{r}
+datosAccidentes =  datosAccidentes[grepl(".*COMUNA.*", datosAccidentes$ZONA) | grepl(".*CORREGIMIENTO.*" , datosAccidentes$ZONA),  ]
+```
+
+
+
+```{r}
+#save(datosAccidentes, file = "datosAccidentes.RData")
+```
+
+```{r}
+#rm(list = ls())
 ```
 
 

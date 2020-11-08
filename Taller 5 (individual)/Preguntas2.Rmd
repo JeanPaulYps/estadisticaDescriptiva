@@ -20,6 +20,11 @@ load("datosAccidentes.RData")
 # ¿Cuales son los 5 barrios con mas accidentes?
 
 ```{r}
+#Comuna 10 - candelaria
+#Comuna 16 - poblado
+#comuna 5 - 
+#comuna 11 - Laureles estadio
+#comuna 7 - roblado
 #,  fig.height = 10, fig.width = 30
 barrios <- datosAccidentes %>% select(ZONA) %>% distinct
 accidentes <- datosAccidentes %>% select(ZONA) %>% group_by(ZONA) %>% count %>% arrange(desc(n))
@@ -71,7 +76,7 @@ ggplot(headClasesAccidente, aes(x=reorder(CLASE_ACCIDENTE,desc(n)), y=n)) +
       labs(x = "Barrio", y = "Cantidad de accidentes") 
 ```
 
-¿Los accidentes han disminuido en el tiempo?
+#¿Los accidentes han disminuido en el tiempo?
 
 ```{r}
 anios = datosAccidentes %>% select(AÑO_ACCIDENTE) %>% group_by(AÑO_ACCIDENTE) %>% count
