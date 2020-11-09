@@ -1,7 +1,9 @@
 ---
 title: "Depuración de la base de datos"
 author: "Jean Paul Yepes"
-output: html_notebook
+output: 
+  html_document:
+    toc: true
 ---
 
 ```{r setup, include=FALSE}
@@ -21,15 +23,21 @@ datosAccidentes <- read.csv("Accidentalidad_con_motos_municipio_de_Medell_n_actu
                     stringsAsFactors = FALSE)
 ```
 
-# Problemas con las fechas 
+# Corrección de las fechas y horas
 
-Al revisar los datos, se evidencia que hay una inconsistencia en los datos, debido a que hay una columna para 
-las fechas y otra columna para las horas, aunque la columna fechas contiene tambien una hora, esta hora no es
-correcta y se podría corregir esta columna solo dejando la fecha del accidente y la hora aparte.
+Al revisar los datos, se evidencia que hay una inconsistencia en los datos,
+debido a que hay una columna para las fechas y otra columna para las horas,
+aunque la columna fechas contiene también una hora, esta hora no es correcta 
+y se deben corregir los datos presentes en esta columna dejando solo la fecha en esta. 
+
+Otro problema que no era visible en los primeros datos es que el día y el mes 
+no siempre estaban en la misma posición, por lo que a veces el día 15 de enero de 2015
+se representaba como: 01/15/2015 o 15/01/2015, por lo que se hizo una corrección para 
+garantizar que se representen todas las fechas iguales de la misma manera.
 
 ```{r}
-muestraFechaHoraIncorrecta = datosAccidentes %>% select("FECHA_ACCIDENTE")
-knitr::kable(head(muestraFechaHoraIncorrecta) , col.names = c("FECHA_ACCIDENTE"), caption = "Table 1: columna fecha del accidente")
+muestraFechaHoraIncorrecta = datosAccidentes %>% select("FECHA_ACCIDENTE","HORA_ACCIDENTE")
+knitr::kable(head(muestraFechaHoraIncorrecta) , caption = "Tabla 1: Columnas fecha y hora del accidente")
 ```
 
 ```{r}
@@ -45,6 +53,8 @@ fixHours <- function(dateBroken) {
 ```
 
 
+Como se evidencia en la tabla 2 ahora si se encuentra, la fecha y la hora debidamente separadas, 
+en un formato adecuado, que represente adecuadamente la fecha del accidente. 
 
 ```{r}
 fechaDelAccidenteEnArchivo = datosAccidentes$FECHA_ACCIDENTE
@@ -53,7 +63,7 @@ datosAccidentes$FECHA_ACCIDENTE = as.Date(fechaDelAccidenteEnArchivoCorregida)
 ```
 
 ```{r}
-knitr::kable(head( datosAccidentes %>% select("FECHA_ACCIDENTE")) , col.names = c("FECHA_ACCIDENTE"), caption = "Table 2: columnas fecha arreglada")
+knitr::kable(head( datosAccidentes %>% select("FECHA_ACCIDENTE", "HORA_ACCIDENTE")) , caption = "Tabla 2: Columnas fecha arreglada")
 ```
 
 
@@ -65,12 +75,15 @@ IsDate = function(mydate, date.format = "%H:%M:%S") {
 
 ```
 
-
+Las horas en algunas filas también tenían una representación diferente, 
+como se ve en la tabla 3, por lo que se hizo una corrección de esas filas 
+quitando todo lo que no sea la hora representada como horas:minutos:segundos, 
+el resultado de esta limpieza se puede apreciar en la tabla 4.
 
 ```{r}
 horas = datosAccidentes$HORA_ACCIDENTE
 horasConFormatoIncorrecto = head(datosAccidentes$HORA_ACCIDENTE[!IsDate(horas)])
-knitr::kable(horasConFormatoIncorrecto , col.names = c("HORA_ACCIDENTE"), caption = "Table 3: columna horas con formato incorrecto")
+knitr::kable(horasConFormatoIncorrecto , col.names = c("HORA_ACCIDENTE"), caption = "Tabla 3: Muestra de horas con formato incorrecto")
 ```
 
 
@@ -96,10 +109,17 @@ datosAccidentes$HORA_ACCIDENTE = sapply(horas, fixHours)
 
 
 ```{r}
-knitr::kable(head(datosAccidentes$HORA_ACCIDENTE[!IsDate(horas)]) , col.names = c("HORA_ACCIDENTE"), caption = "Table 4: columna horas con formato arreglado")
+knitr::kable(head(datosAccidentes$HORA_ACCIDENTE[!IsDate(horas)]) , col.names = c("HORA_ACCIDENTE"), caption = "Tabla 4: Columna horas con formato arreglado")
 ```
 
 # Agregar coordenadas a los accidentes
+
+Con base a el esfuerzo que los compañeros de clase han hecho, 
+he decidido aumentar la base de datos con las coordenadas que ellos han puesto, 
+la razón por la cual no decidí cargarla como base de datos es que tiene otros atributos
+que no están en la base de datos original por lo cual, 
+solo se va a hacer uso de las columnas longitud y latitud que están dentro de esa base de datos.
+
 
 ```{r}
 datosConCoordenadas <- read.csv("Datos_con_coordenadas.csv",
@@ -114,7 +134,7 @@ datosAccidentes$latitud = datosConCoordenadas$latitud
 ```
 
 ```{r}
-knitr::kable(head(datosAccidentes[, c(1,10,11) ], 10), caption = "Tabla 5: Tabla con longitudes")
+knitr::kable(head(datosAccidentes[, c(1,10,11) ], 10), caption = "Tabla 5: datos con longitud y latitudes")
 ```
 
 
@@ -122,8 +142,12 @@ knitr::kable(head(datosAccidentes[, c(1,10,11) ], 10), caption = "Tabla 5: Tabla
 
 # Eliminar filas sin direcciones
 
+Se encontró que había 3 registros sin direcciones (ver tabla 6) por lo que se procede a eliminar
+esas filas de la base de datos, debido a que qutiando esos datos, aun se puede hacer un análisis robusto.
+
+
 ```{r}
-knitr::kable(datosAccidentes[datosAccidentes$DIRECCION == "", c(1,7) ], caption = "Tabla 5: filas que no tienen direcciones")
+knitr::kable(datosAccidentes[datosAccidentes$DIRECCION == "", c(1,7) ], caption = "Tabla 6: Filas que no tienen direcciones")
 ```
 
 
@@ -135,9 +159,13 @@ datosAccidentes = datosAccidentes[!datosAccidentes$DIRECCION == "", ]
 
 # Eliminar radicados duplicados
 
+Existían filas duplicadas, al tener el mismo radicado eso indica que son filas repetidas
+por lo que se deben borrar de la base de datos porque no es deseable para el estudio tener 
+filas que puedan sesgar la información,  en la tabla 7 se pueden ver los datos que tenían duplicados repetidos.
+
 ```{r}
 test = datosAccidentes
-knitr::kable(datosAccidentes[duplicated(datosAccidentes$NRO_RADICADO), c(1,7)], caption="Tabla xx: radicados duplicados")
+knitr::kable(datosAccidentes[duplicated(datosAccidentes$NRO_RADICADO), c(1,7)], caption="Tabla 7: radicados duplicados")
 ```
 
 ```{r}
@@ -146,16 +174,31 @@ datosAccidentes = datosAccidentes[!duplicated(datosAccidentes$NRO_RADICADO),]
 
 
 
-# Eliminar direcciones vacías o extrañas
+# Eliminar direcciones imprecisas
+
+Como se puede ver en la tabla 8, no todas las direcciones son precisas, 
+existían algunas accidentes que supuestamente ocurren en la calle 999 con carrera 999
+o en el tramo 16 con calle 999 o calle 1 con carrera 1, por este motivo se 
+borraron todas las direcciones que contuviera el número 999 o que fueran calle 1 con carrera 1. 
+
+
+Ya que al no tener una dirección precisa, esta información de esta fila 
+puede ser poco fiable con respecto a los datos que contiene, en la tabla 9 
+donde se puede ver la cantidad de filas de este tipo se evidencia que no 
+son pocas las filas de este tipo dentro de la base de datos.
+
+
+
+
 
 ```{r}
 knitr::kable(head(datosAccidentes[datosAccidentes$DIRECCION == "Calle 1 Con Carrera 1" | grepl(".*999.*", datosAccidentes$DIRECCION), c(1,7) ], 10), 
-             caption = "Tabla xx: direcciones sin sentido")
+             caption = "Tabla 8: direcciones imprecisas")
 ```
 
 ```{r}
-knitr::kable(count( datosAccidentes[datosAccidentes$DIRECCION == "Calle 1 Con Carrera 1" | grepl(".*999.*", datosAccidentes$DIRECCION), ]),
-             caption = "Tabla xx: Numero de accidentes con direcciones raras")
+knitr::kable(count( datosAccidentes[datosAccidentes$DIRECCION == "Calle 1 Con Carrera 1" | grepl(".*999.*", datosAccidentes$DIRECCION), ]), 
+            col.names="Numero de direcciones imprecisas",  caption = "Tabla 9: Número de accidentes con direcciones imprecisas")
 ```
 
 ```{r}
@@ -165,20 +208,34 @@ datosAccidentes = datosAccidentes[!datosAccidentes$DIRECCION == "Calle 1 Con Car
 
 
 
-# Eliminar zonas exptrañas 
+# Eliminar zonas inadecuadas
+
+Se encontró que no todas la información de zonas o comunas era totalmente precisa, 
+aunque entre las zonas que se muestran en la tabla 10 parecen haber nombres que tienen sentido 
+como centro o alpujarra se decidió eliminarse porque no tenían un patrón en la dirección que permitiera
+confirmar que esos datos en verdad hubieran ocurrido en el lugar que describen. 
+
+También se nota como hay otros datos que no tienen sentido como la zona “.” o la zona 4
+o jurisdicción y como se ve en la tabla 11, había aproximadamente unas 7.000 filas
+que tenían una zona con un nombre no del todo adecuado. Las zonas con las q
+ue se trabajará en este informe serán las que están en la tabla 12.
+
+Con los cambios realizados en la base de datos se pasaron de 145.456 datos a 135.567 datos. 
+Aunque se han borrado cerca de 10.000 datos, parece que es una cantidad aceptable para 
+realizar un análisis descriptivo de la accidentalidad de motos en la ciudad de Medellín.
+
 
 ```{r}
-#unique(datosAccidentes[!grepl(".*COMUNA.*", datosAccidentes$ZONA) &  !grepl(".*CORREGIMIENTO.*" , datosAccidentes$ZONA), 8])
-#length(datosAccidentes[!grepl(".*COMUNA.*", datosAccidentes$ZONA) &  !grepl(".*CORREGIMIENTO.*" , datosAccidentes$ZONA), 8])
-knitr::kable(unique(datosAccidentes[!grepl(".*COMUNA.*", datosAccidentes$ZONA) &  !grepl(".*CORREGIMIENTO.*" , datosAccidentes$ZONA), 8])
-             , caption = "Tabla 5: Zonas extrañas")
+knitr::kable(unique(datosAccidentes[!grepl(".*COMUNA.*", datosAccidentes$ZONA) &  !grepl(".*CORREGIMIENTO.*" , datosAccidentes$ZONA), 8]), 
+             col.names = c("Zonas que quedarán fuera de la base de datos")
+             , caption = "Tabla 10: Zonas que quedarán fuera de la base de datos")
 ```
 
 
 
 ```{r}
 knitr::kable(length(datosAccidentes[!grepl(".*COMUNA.*", datosAccidentes$ZONA) &  !grepl(".*CORREGIMIENTO.*" , datosAccidentes$ZONA), 8])
-             ,col.names=c("Numero de filas cambiadas"),  caption = "Tabla 6: Numero de Zonas extrañas")
+             ,col.names=c("Numero de filas con zonas dudosas"),  caption = "Tabla 11: Numero de zonas eliminadas")
 ```
 
 
@@ -187,8 +244,13 @@ datosAccidentes =  datosAccidentes[grepl(".*COMUNA.*", datosAccidentes$ZONA) | g
 ```
 # Cambiar nombre a las zonas
 
+Con el fin de mejorar la información de las zonas, se cambiaron los números de las comunas 
+(véase la tabla 12) por los nombres de cada una (véase la tabla 13), 
+para que la información de esta columna sea más fácil de interpretar.
+
+
 ```{r}
-knitr::kable(unique(datosAccidentes$ZONA), col.names = c("ZONA"), caption="Nombres de barrios en la base de datos")
+knitr::kable(unique(datosAccidentes$ZONA), col.names = c("ZONA"), caption="Tabla 12: Nombres de barrios en la base de datos")
 ```
 
 
@@ -212,21 +274,20 @@ datosAccidentes[datosAccidentes$ZONA == "COMUNA 16", 8 ] <- "Belén"
 datosAccidentes[datosAccidentes$ZONA == "CORREGIMIENTO SAN CRISTOBAL Jurisdicción", 8 ] <- "Corregimiento de San Cristóbal"
 datosAccidentes[datosAccidentes$ZONA == "CORREGIMIENTO PALMITAS Jurisdicción", 8 ] <- "Corregimiento de San Sebastián de Palmitas"
 datosAccidentes[datosAccidentes$ZONA == "CORREGIMIENTO SANTA ELENA Jurisdicción", 8 ] <- "Corregimiento de Santa Elena"
-
 ```
 
 ```{r}
-knitr::kable(unique(datosAccidentes$ZONA), col.names = c("ZONA"), caption = "Nuevos nombres de los barrios")
+knitr::kable(unique(datosAccidentes$ZONA), col.names = c("ZONA"), caption = "Tabla 13: Nuevos nombres de los barrios")
 ```
 
 
 
 ```{r}
-#save(datosAccidentes, file = "datosAccidentes.RData")
+save(datosAccidentes, file = "datosAccidentes.RData")
 ```
 
 ```{r}
-#rm(list = ls())
+rm(list = ls())
 ```
 
 
