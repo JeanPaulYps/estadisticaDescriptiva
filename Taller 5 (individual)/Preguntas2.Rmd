@@ -81,8 +81,34 @@ ggplot(headClasesAccidente, aes(x=reorder(CLASE_ACCIDENTE,desc(n)), y=n)) +
 ```{r}
 anios = datosAccidentes %>% select(AÑO_ACCIDENTE) %>% group_by(AÑO_ACCIDENTE) %>% count
 print(anios)
+anios = head(anios, 5)
 ggplot(anios, aes(x=AÑO_ACCIDENTE, y=n)) + 
       geom_bar(stat = "identity")
 
 ```
+
+# Comparcion gravedad de accidentes
+
+```{r}
+GravedadAccidentes = datosAccidentes %>% select(GRAVEDAD_ACCIDENTE) %>% group_by(GRAVEDAD_ACCIDENTE) %>% count
+barplot(table(datosAccidentes$GRAVEDAD_ACCIDENTE))
+```
+
+
+```{r}
+test2 = datosAccidentes  %>%  select(AÑO_ACCIDENTE, GRAVEDAD_ACCIDENTE) %>%  group_by(GRAVEDAD_ACCIDENTE)  
+print(table(test2))
+test3 = table(test2)
+test4 = as.data.frame(test3)
+print(test4)
+#ggplot(data=df2, aes(x=dose, y=len, fill=supp)) +
+#  geom_bar(stat="identity")
+ggplot(data=test4, aes(x=AÑO_ACCIDENTE, y=Freq, fill=GRAVEDAD_ACCIDENTE)) +
+  geom_bar(stat="identity")
+
+```
+
+# Extra
+
+
 

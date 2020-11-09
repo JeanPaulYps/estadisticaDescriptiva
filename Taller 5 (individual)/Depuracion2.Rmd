@@ -113,18 +113,31 @@ datosAccidentes$longitud = datosConCoordenadas$longitud
 datosAccidentes$latitud = datosConCoordenadas$latitud
 ```
 
+```{r}
+knitr::kable(head(datosAccidentes[, c(1,10,11) ], 10), caption = "Tabla 5: Tabla con longitudes")
+```
+
+
+
 
 # Eliminar filas sin direcciones
+
 ```{r}
 knitr::kable(datosAccidentes[datosAccidentes$DIRECCION == "", c(1,7) ], caption = "Tabla 5: filas que no tienen direcciones")
 ```
+
+
+```{r}
+datosAccidentes = datosAccidentes[!datosAccidentes$DIRECCION == "", ]
+```
+
 
 
 # Eliminar radicados duplicados
 
 ```{r}
 test = datosAccidentes
-datosAccidentes[duplicated(datosAccidentes$NRO_RADICADO), c(1,7)]
+knitr::kable(datosAccidentes[duplicated(datosAccidentes$NRO_RADICADO), c(1,7)], caption="Tabla xx: radicados duplicados")
 ```
 
 ```{r}
@@ -136,11 +149,13 @@ datosAccidentes = datosAccidentes[!duplicated(datosAccidentes$NRO_RADICADO),]
 # Eliminar direcciones vacías o extrañas
 
 ```{r}
-head(datosAccidentes[datosAccidentes$DIRECCION == "Calle 1 Con Carrera 1" | grepl(".*999.*", datosAccidentes$DIRECCION), c(1,7) ], 10)
+knitr::kable(head(datosAccidentes[datosAccidentes$DIRECCION == "Calle 1 Con Carrera 1" | grepl(".*999.*", datosAccidentes$DIRECCION), c(1,7) ], 10), 
+             caption = "Tabla xx: direcciones sin sentido")
 ```
 
 ```{r}
-count( datosAccidentes[datosAccidentes$DIRECCION == "Calle 1 Con Carrera 1" | grepl(".*999.*", datosAccidentes$DIRECCION), ])
+knitr::kable(count( datosAccidentes[datosAccidentes$DIRECCION == "Calle 1 Con Carrera 1" | grepl(".*999.*", datosAccidentes$DIRECCION), ]),
+             caption = "Tabla xx: Numero de accidentes con direcciones raras")
 ```
 
 ```{r}
@@ -162,7 +177,46 @@ knitr::kable(unique(datosAccidentes[!grepl(".*COMUNA.*", datosAccidentes$ZONA) &
 
 
 ```{r}
+knitr::kable(length(datosAccidentes[!grepl(".*COMUNA.*", datosAccidentes$ZONA) &  !grepl(".*CORREGIMIENTO.*" , datosAccidentes$ZONA), 8])
+             ,col.names=c("Numero de filas cambiadas"),  caption = "Tabla 6: Numero de Zonas extrañas")
+```
+
+
+```{r}
 datosAccidentes =  datosAccidentes[grepl(".*COMUNA.*", datosAccidentes$ZONA) | grepl(".*CORREGIMIENTO.*" , datosAccidentes$ZONA),  ]
+```
+# Cambiar nombre a las zonas
+
+```{r}
+knitr::kable(unique(datosAccidentes$ZONA), col.names = c("ZONA"), caption="Nombres de barrios en la base de datos")
+```
+
+
+```{r}
+datosAccidentes[datosAccidentes$ZONA == "COMUNA 1", 8 ] <- "Popular"
+datosAccidentes[datosAccidentes$ZONA == "COMUNA 2", 8 ] <- "Santa Cruz"
+datosAccidentes[datosAccidentes$ZONA == "COMUNA 3", 8 ] <- "Manrique"
+datosAccidentes[datosAccidentes$ZONA == "COMUNA 4", 8 ] <- "Aranjuez"
+datosAccidentes[datosAccidentes$ZONA == "COMUNA 5", 8 ] <- "Castilla"
+datosAccidentes[datosAccidentes$ZONA == "COMUNA 6", 8 ] <- "Doce de octubre"
+datosAccidentes[datosAccidentes$ZONA == "COMUNA 7", 8 ] <- "Robledo"
+datosAccidentes[datosAccidentes$ZONA == "COMUNA 8", 8 ] <- "Villa Hermosa"
+datosAccidentes[datosAccidentes$ZONA == "COMUNA 9", 8 ] <- "Buenos Aires"
+datosAccidentes[datosAccidentes$ZONA == "COMUNA 10", 8 ] <- "La Candelaria"
+datosAccidentes[datosAccidentes$ZONA == "COMUNA 11", 8 ] <- "Laureles Estadio"
+datosAccidentes[datosAccidentes$ZONA == "COMUNA 12", 8 ] <- "La América"
+datosAccidentes[datosAccidentes$ZONA == "COMUNA 13", 8 ] <- "San Javier"
+datosAccidentes[datosAccidentes$ZONA == "COMUNA 14", 8 ] <- "Poblado"
+datosAccidentes[datosAccidentes$ZONA == "COMUNA 15", 8 ] <- "Guayabal"
+datosAccidentes[datosAccidentes$ZONA == "COMUNA 16", 8 ] <- "Belén"
+datosAccidentes[datosAccidentes$ZONA == "CORREGIMIENTO SAN CRISTOBAL Jurisdicción", 8 ] <- "Corregimiento de San Cristóbal"
+datosAccidentes[datosAccidentes$ZONA == "CORREGIMIENTO PALMITAS Jurisdicción", 8 ] <- "Corregimiento de San Sebastián de Palmitas"
+datosAccidentes[datosAccidentes$ZONA == "CORREGIMIENTO SANTA ELENA Jurisdicción", 8 ] <- "Corregimiento de Santa Elena"
+
+```
+
+```{r}
+knitr::kable(unique(datosAccidentes$ZONA), col.names = c("ZONA"), caption = "Nuevos nombres de los barrios")
 ```
 
 
