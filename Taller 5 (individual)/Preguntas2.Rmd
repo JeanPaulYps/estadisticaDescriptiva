@@ -3,6 +3,12 @@ title: "Depuración de la base de datos"
 author: "Jean Paul Yepes"
 output: html_notebook
 ---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
 ```{r}
 library(tidyverse)
 library(ggplot2)
@@ -20,25 +26,25 @@ load("datosAccidentes.RData")
 # ¿Cuales son los 5 barrios con mas accidentes?
 
 ```{r}
-#Comuna 10 - candelaria
-#Comuna 16 - poblado
-#comuna 5 - 
-#comuna 11 - Laureles estadio
-#comuna 7 - roblado
-#,  fig.height = 10, fig.width = 30
 barrios <- datosAccidentes %>% select(ZONA) %>% distinct
 accidentes <- datosAccidentes %>% select(ZONA) %>% group_by(ZONA) %>% count %>% arrange(desc(n))
 print(accidentes)
-#print(barrios)
-#ggplot(datosAccidentes, aes(x = as.factor(ZONA) )) +  geom_bar(color="blue") + theme(axis.text.x = element_text(angle = 90))
-headAccidentes <- head(accidentes)
+headAccidentes <- accidentes
 print(headAccidentes)
 
 ggplot(headAccidentes, aes(x=reorder(ZONA,n), y=n)) + 
-      geom_bar(stat = "identity") +
+      geom_bar(stat = "identity", fill = c(rep("#1A5D41", times=5), rep("#2F7356", times= 5), rep("#4D8C71", times= 5), rep("#78A994", times= 4)), 
+               color = "white") +
       labs(x = "Barrio", y = "Cantidad de accidentes") +
-      
-      geom_hline(aes(yintercept=seq(0,25000,by=5000)), color = "gray" , linetype="dashed" )+
+      geom_hline(aes(yintercept=2500 ), color = "#F7C4AF" , linetype="dashed") +
+      geom_hline(aes(yintercept=5000 ), color = "#F7C4AF" , linetype="dashed") +
+      geom_hline(aes(yintercept=7500 ), color = "#F7C4AF" , linetype="dashed") +
+      geom_hline(aes(yintercept=10000 ), color = "#F7C4AF" , linetype="dashed") +
+      geom_hline(aes(yintercept=12500 ), color = "#F7C4AF" , linetype="dashed") +
+      geom_hline(aes(yintercept=15000 ), color = "#F7C4AF" , linetype="dashed") +
+      geom_hline(aes(yintercept=17500 ), color = "#F7C4AF" , linetype="dashed") +
+      geom_hline(aes(yintercept=20000 ), color = "#F7C4AF" , linetype="dashed") +
+      geom_hline(aes(yintercept=22500 ), color = "#F7C4AF" , linetype="dashed") +
       coord_flip()
 ```
 
@@ -48,22 +54,33 @@ ggplot(headAccidentes, aes(x=reorder(ZONA,n), y=n)) +
 horas <- lubridate::hour(strptime(datosAccidentes$HORA_ACCIDENTE,"%H:%M:%S"))
 dfHoras <- as.data.frame(horas)
 dfHoras <- dfHoras %>% group_by(horas) %>% count
-#horas <- datosAccidentes %>% select(HORA_ACCIDENTE)
-#print(summary(as.factor(horas)))
 
-
-#print(lubridate::hms(horas))
 print(dfHoras)
 ggplot(dfHoras, aes(x=horas, y=n)) + 
-      geom_bar(stat = "identity") +
+      geom_bar(stat = "identity", fill="#31506D", color = "white") +
       labs(x = "Hora", y = "Cantidad de accidentes") +
-      scale_x_discrete(limits=c(seq(0,24, by = 1) )) +
-      geom_hline(aes(yintercept=0 ), color = "gray" , linetype="dashed") +
-      geom_hline(aes(yintercept=3000 ), color = "gray" , linetype="dashed") +
-      geom_hline(aes(yintercept=6000 ), color = "gray" , linetype="dashed") +
-      geom_hline(aes(yintercept=9000 ), color = "gray" , linetype="dashed") 
+      scale_x_discrete(limits=c(seq(0,23, by = 1) )) +
+      geom_hline(aes(yintercept=2500 ), color = "#F6E6AE" , linetype="dashed") +
+      geom_hline(aes(yintercept=5000 ), color = "#F6E6AE" , linetype="dashed") +
+      geom_hline(aes(yintercept=7500 ), color = "#F6E6AE" , linetype="dashed") +
+      geom_hline(aes(yintercept=10000 ), color = "#F6E6AE" , linetype="dashed") 
 
 ```
+# ¿Como se distribuye los accidentes por meses?
+
+```{r}
+meses <- lubridate::month(strptime(datosAccidentes$FECHA_ACCIDENTE,"%Y-%m-%d"))
+dfMeses <- as.data.frame(meses)
+dfMeses <- dfMeses %>% group_by(meses) %>% count
+print(dfMeses)
+ggplot(dfMeses, aes(x=meses, y=n)) + 
+      geom_bar(stat = "identity", fill="#D3AD3C", color = "white") +
+      labs(x = "Meses", y = "Cantidad de accidentes") +
+      scale_x_discrete(limits=c(seq(1,12, by = 1) )) +
+      geom_text(aes(label=n), vjust=-0.5, color="#25257D",
+            position = position_dodge(0.9), size=3.5) 
+```
+
 
 #¿Cuales fueron las clases de accidentes mas comunes?
 
@@ -72,27 +89,14 @@ clasesAccidente <- datosAccidentes %>% select(CLASE_ACCIDENTE) %>% group_by(CLAS
 headClasesAccidente = head(clasesAccidente, n=5)
 print(clasesAccidente)
 ggplot(headClasesAccidente, aes(x=reorder(CLASE_ACCIDENTE,desc(n)), y=n)) + 
-      geom_bar(stat = "identity") +
-      labs(x = "Barrio", y = "Cantidad de accidentes") 
+      geom_bar(stat = "identity", fill = c("#BA83A9", "#DA9BAF", "#CC90AD", "#D4B1CA", "#EBC4D1"  ) ) +
+      labs(x = "Barrio", y = "Cantidad de accidentes") + 
+      geom_text(aes(label=n), vjust=-0.5, color="black",
+              position = position_dodge(0.9), size=3.5) 
 ```
 
-#¿Los accidentes han disminuido en el tiempo?
 
-```{r}
-anios = datosAccidentes %>% select(AÑO_ACCIDENTE) %>% group_by(AÑO_ACCIDENTE) %>% count
-print(anios)
-anios = head(anios, 5)
-ggplot(anios, aes(x=AÑO_ACCIDENTE, y=n)) + 
-      geom_bar(stat = "identity")
-
-```
-
-# Comparcion gravedad de accidentes
-
-```{r}
-GravedadAccidentes = datosAccidentes %>% select(GRAVEDAD_ACCIDENTE) %>% group_by(GRAVEDAD_ACCIDENTE) %>% count
-barplot(table(datosAccidentes$GRAVEDAD_ACCIDENTE))
-```
+# Comparacion gravedad de accidentes
 
 
 ```{r}
@@ -101,14 +105,92 @@ print(table(test2))
 test3 = table(test2)
 test4 = as.data.frame(test3)
 print(test4)
-#ggplot(data=df2, aes(x=dose, y=len, fill=supp)) +
-#  geom_bar(stat="identity")
 ggplot(data=test4, aes(x=AÑO_ACCIDENTE, y=Freq, fill=GRAVEDAD_ACCIDENTE)) +
   geom_bar(stat="identity")
-
 ```
 
+# Como se distribuye los accidentes diseño vía
+
+```{r}
+clasesAccidente <- datosAccidentes %>% select(Diseño.Vía) %>% group_by(Diseño.Vía) %>% count %>% arrange(desc(n))
+headClasesAccidente = head(clasesAccidente, n=5)
+print(clasesAccidente)
+ggplot(headClasesAccidente, aes(x=reorder(Diseño.Vía,desc(n)), y=n)) + 
+      geom_bar(stat = "identity", fill = c("#530E53", "#6F256F", "#8A458A", "#565695", "#8080B3"), color = "white" ) +
+      labs(x = "Barrio", y = "Cantidad de accidentes")  +
+      geom_text(aes(label=n), vjust=-0.5, color="black",
+            position = position_dodge(0.9), size=3.5) 
+      
+```
+
+
+
+
+
+
 # Extra
+
+
+```{r}
+library("sf")
+```
+
+```{r}
+library(OpenStreetMap)
+library(osmdata)
+```
+
+```{r}
+library(ggmap)
+```
+
+
+
+```{r}
+mapa_envig <- get_map(getbb("Medellin"), source = "osm")
+```
+
+
+
+
+
+```{r}
+prueba <- datosAccidentes %>%  subset(longitud!= 0 & latitud != 0) %>% select(longitud, latitud, ZONA) %>% group_by(longitud, latitud) %>% mutate(count=n()) %>% distinct()
+#print(count(datosAccidentes %>% subset(longitud == 0 & latitud == 0)))
+#sum(prueba$count)
+prueba <- head(prueba[order(prueba$count,  decreasing =TRUE),], 500)
+#print(prueba[order(prueba$count,  decreasing =TRUE),])
+```
+```{r}
+print(sum(prueba$count))
+```
+
+```{r}
+puntos <- st_as_sf(prueba, coords = c("longitud", "latitud"))
+
+ggmap(mapa_envig) +
+  geom_sf(data = puntos ,
+          inherit.aes = FALSE, 
+          aes(color=count)) 
+```
+
+
+```{r}
+prueba1 <- datosAccidentes %>%  subset(longitud!= 0 & latitud != 0) %>% select(longitud, latitud, ZONA) %>% group_by(longitud, latitud) %>% mutate(count=n()) %>% distinct()
+#print(count(datosAccidentes %>% subset(longitud == 0 & latitud == 0)))
+#sum(prueba$count)
+prueba1 <- head(prueba[order(prueba$count,  decreasing =TRUE),], 100)
+#print(prueba[order(prueba$count,  decreasing =TRUE),])
+```
+
+```{r}
+puntos1 <- st_as_sf(prueba1, coords = c("longitud", "latitud"))
+
+ggmap(mapa_envig) +
+  geom_sf(data = puntos1 ,
+          inherit.aes = FALSE, 
+          aes(color=count)) 
+```
 
 
 
