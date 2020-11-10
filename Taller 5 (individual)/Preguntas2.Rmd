@@ -1,8 +1,11 @@
 ---
-title: "Depuración de la base de datos"
+title: "Preguntas de la base de datos"
 author: "Jean Paul Yepes"
-output: html_notebook
+output: 
+  html_document:
+    toc: true
 ---
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
                       warning = FALSE,
@@ -13,26 +16,51 @@ knitr::opts_chunk$set(echo = FALSE,
 library(tidyverse)
 library(ggplot2)
 library(lubridate)
+library("sf")
+library(OpenStreetMap)
+library(osmdata)
+library(ggmap)
 ```
-
 
 
 ```{r}
 load("datosAccidentes.RData")
 ```
 
+# ¿Cuales son los barrios con mas accidentes?
+
+Como se puede ver en la tabla 1 el barrio con más accidentes con gran diferencia 
+es la Candelaria con 22.374 accidentes desde el 2015 hasta junio del 2020, 
+esto se puede deber a que es la zona más transitada y con más vías, por lo que hace
+que esta sea una zona que sea más propensa a accidentes que el resto de la ciudad.
+
+Después tenemos a Castilla, Laureles- Estadio, Poblado, Robledo y Belén 
+como las zonas de la ciudad con más de 10.000 accidentes, esto también puede deberse
+a sus grandes vías, como hay flujo de más vehículos hacen que la probabilidad
+de accidentes aumenten.
 
 
-# ¿Cuales son los 5 barrios con mas accidentes?
+Posteriormente tenemos menos las demás zonas las cuales tienen menos de 10.000 accidentes,
+hay 2 saltos importantes en esta categoría el salto entre Guayabal y Belén, hay una diferencia 
+alrededor de 3.000 accidentes; la otra es entre Aranjuez y Manrique donde una diferencia de 
+alrededor de 2.000 accidentes; desde este último gran salto los accidentes disminuyen paulatinamente.
+
+Lo que podemos concluir de estos datos es: Candelaria es la zona más accidentada,
+una hipótesis sobre las zonas con más de 10.000 accidentes tienen es que estas 
+tienen grandes vías lo cual hace que estos sectores sean más propensos a más accidentes, 
+hay 2 grandes saltos en las zonas con menos de 10.000 accidentes habría que caracterizar
+mejor estas zonas para ver cual es el motivo de estos saltos.
+
 
 ```{r}
-barrios <- datosAccidentes %>% select(ZONA) %>% distinct
 accidentes <- datosAccidentes %>% select(ZONA) %>% group_by(ZONA) %>% count %>% arrange(desc(n))
-print(accidentes)
-headAccidentes <- accidentes
-print(headAccidentes)
+knitr::kable(accidentes, col.names = c("Zona", "Cantidad"),  caption = "Tabla 1: cantidad de accidentes por barrio")
 
-ggplot(headAccidentes, aes(x=reorder(ZONA,n), y=n)) + 
+```
+
+
+```{r}
+ggplot(accidentes, aes(x=reorder(ZONA,n), y=n)) + 
       geom_bar(stat = "identity", fill = c(rep("#1A5D41", times=5), rep("#2F7356", times= 5), rep("#4D8C71", times= 5), rep("#78A994", times= 4)), 
                color = "white") +
       labs(x = "Barrio", y = "Cantidad de accidentes") +
@@ -45,151 +73,315 @@ ggplot(headAccidentes, aes(x=reorder(ZONA,n), y=n)) +
       geom_hline(aes(yintercept=17500 ), color = "#F7C4AF" , linetype="dashed") +
       geom_hline(aes(yintercept=20000 ), color = "#F7C4AF" , linetype="dashed") +
       geom_hline(aes(yintercept=22500 ), color = "#F7C4AF" , linetype="dashed") +
+      ggtitle("Accidentes por barrio") +
       coord_flip()
 ```
 
 #¿Cuales son las horas con mas accidentes?
 
+Los accidentes aumentan en la entrada a la jornada de trabajo y a la salida de la 
+jornada de trabajo, en la tabla 2 podemos ver los dos picos que ocurren a las 7 de la mañana 
+y a las 5 de la tarde, aunque si comparamos las dos subidas, en la tarde hay casi 600 accidentes
+más que en la mañana, esto se puede deber que debido al agotamiento después de la jornada
+laboral hacen que los conductores que sean más propensos a chocar.
+
+Otro dato importante de los datos, es que entre las 9 y a las 11, que son horas
+laborales hay menos accidentes y despues vuelve a aumentar de nuevo hacia las 12, 
+esto puede ser debido a que entre las 9 y las 11 todos ya están trabajando, por lo 
+que hay menos vehículos rodando que puedan chocar, aunque también podría ser por otra 
+razón que no he considerado porque la cantidad de accidentes debería volver a bajar
+entre la 1 y 3 de la tarde, pero eso no sucede. 
+
+En conclusión, el horario laboral es lo que marca la tendencia a estrellarse,
+hay una gran diferencia entre las horas laborales y las que no, 
+hay muchos menos accidentes entre las 9 y las 11 que no tiene una buena razón
+¿por que a esta hora hay menos accidentes?, a las 5 de la tarde es la hora con más accidentes.
+
+
 ```{r}
 horas <- lubridate::hour(strptime(datosAccidentes$HORA_ACCIDENTE,"%H:%M:%S"))
 dfHoras <- as.data.frame(horas)
 dfHoras <- dfHoras %>% group_by(horas) %>% count
+knitr::kable(dfHoras, col.names = c("Horas", "Cantidad accidentes"),  caption = "Tabla 2: cantidad de accidentes por hora")
+```
 
-print(dfHoras)
+```{r}
 ggplot(dfHoras, aes(x=horas, y=n)) + 
       geom_bar(stat = "identity", fill="#31506D", color = "white") +
       labs(x = "Hora", y = "Cantidad de accidentes") +
       scale_x_discrete(limits=c(seq(0,23, by = 1) )) +
+      ggtitle("Accidentes por hora") +
       geom_hline(aes(yintercept=2500 ), color = "#F6E6AE" , linetype="dashed") +
       geom_hline(aes(yintercept=5000 ), color = "#F6E6AE" , linetype="dashed") +
       geom_hline(aes(yintercept=7500 ), color = "#F6E6AE" , linetype="dashed") +
-      geom_hline(aes(yintercept=10000 ), color = "#F6E6AE" , linetype="dashed") 
+      geom_hline(aes(yintercept=10000 ), color = "#F6E6AE" , linetype="dashed")
+      
 
 ```
 # ¿Como se distribuye los accidentes por meses?
+
+Los meses con menos accidentes son enero, abril, noviembre y diciembre,
+lo que todos estos meses tienen en común es que son meses con más festivos,
+en diciembre y enero tenemos la temporada de navidad y el año nuevo, 
+a inicios de abril se da la semana santa y noviembre tiene 2 festivos seguidos,
+eso explicaría el descenso en los accidentes, para contrastar tenemos
+febrero que no tiene ningún festivo, que tiene cerca de 1500 accidentes más que otros meses. 
+
+Los dos picos de accidentes que ocurren en el año son febrero 
+y julio con cerca de 12300 accidentes, entre 2015 y lo que se 
+registró entre 2020, tocaría caracterizar mejor el mes de julio 
+ya que este mes tiene festivos y aún así presenta una alta accidentalidad.
+
+En conclusión los dos meses más accidentados son febrero y julio, 
+parece que los meses con muchos días festivos son los que marcan 
+que tan propenso se es a sufrir un accidente.
+
 
 ```{r}
 meses <- lubridate::month(strptime(datosAccidentes$FECHA_ACCIDENTE,"%Y-%m-%d"))
 dfMeses <- as.data.frame(meses)
 dfMeses <- dfMeses %>% group_by(meses) %>% count
-print(dfMeses)
+knitr::kable(dfMeses, col.names = c("Horas", "Cantidad accidentes"),  caption = "Tabla 3: cantidad de accidentes por mes")
+```
+
+
+
+```{r}
 ggplot(dfMeses, aes(x=meses, y=n)) + 
       geom_bar(stat = "identity", fill="#D3AD3C", color = "white") +
       labs(x = "Meses", y = "Cantidad de accidentes") +
       scale_x_discrete(limits=c(seq(1,12, by = 1) )) +
       geom_text(aes(label=n), vjust=-0.5, color="#25257D",
-            position = position_dodge(0.9), size=3.5) 
+            position = position_dodge(0.9), size=3.5) +
+      ggtitle("Accidentes por mes") 
 ```
 
 
 #¿Cuales fueron las clases de accidentes mas comunes?
 
+Las clases de accidentes más comunes son choque y otro, 
+habría qué profundizar en que tipos de accidentes son otros,
+para obtener más información, pero por una gran diferencia
+los choques son la clase de accidente más común (un 54% de los accidentes son choques). 
+
+También hay una gran cantidad de atropellos contra los motociclistas,
+un 9% de los accidentes son por este motivo, 
+también tocaría buscar los motivos por los cuales los motociclistas 
+son atropellados ¿son imprudentes? ¿los conductores son imprudentes? ¿no los ven?
+
+La clase de accidente más común es choque, los atropellos 
+son un 9% de las clases de accidentes tocaría indagar más en las causas de estos.
+
+
 ```{r}
 clasesAccidente <- datosAccidentes %>% select(CLASE_ACCIDENTE) %>% group_by(CLASE_ACCIDENTE) %>% count %>% arrange(desc(n))
 headClasesAccidente = head(clasesAccidente, n=5)
-print(clasesAccidente)
+
+knitr::kable(clasesAccidente, col.names = c("Horas", "Cantidad accidentes"),  caption = "Tabla 4: clases de accidentes")
+```
+
+
+```{r}
 ggplot(headClasesAccidente, aes(x=reorder(CLASE_ACCIDENTE,desc(n)), y=n)) + 
       geom_bar(stat = "identity", fill = c("#BA83A9", "#DA9BAF", "#CC90AD", "#D4B1CA", "#EBC4D1"  ) ) +
       labs(x = "Barrio", y = "Cantidad de accidentes") + 
       geom_text(aes(label=n), vjust=-0.5, color="black",
-              position = position_dodge(0.9), size=3.5) 
+              position = position_dodge(0.9), size=3.5) +
+      ggtitle("Accidentes por clase de accidente") 
 ```
 
 
-# Comparacion gravedad de accidentes
+# Comparacion gravedad de accidentes por año
+
+El 2016, 2017 y 2019 son los años más accidentados, a
+unque en el periodo de 2016-2018 pareciera que existía
+una tendencia a la baja en los accidentes, eso no continuo en 
+el año 2019 donde vuelve a llegar otro pico de accidentes, en 
+ese mismo periodo hubo una variación de los heridos, pero se 
+observa que la cantidad de daños es similar todos los años. 
+
+Un balance positivo de los datos es que a pesar de la variación
+en la cantidad de accidentes la cantidad de muertos no supera los 100,
+lo cual es algo positivo ya que este grupo es menos del 1% de los accidentes. 
+
+En conclusión entre 2016-2018 pareciera que la accidentalidad
+iba a bajar pero esa tendencia se contradijo con lo sucedido en 2019, 
+afortunadamente los muertos y los daños no parecen aumentar mucho
+a lo largo de los años, lo que hace la diferencia entre 
+la cantidad de accidentes son los heridos.
 
 
 ```{r}
-test2 = datosAccidentes  %>%  select(AÑO_ACCIDENTE, GRAVEDAD_ACCIDENTE) %>%  group_by(GRAVEDAD_ACCIDENTE)  
-print(table(test2))
-test3 = table(test2)
-test4 = as.data.frame(test3)
-print(test4)
-ggplot(data=test4, aes(x=AÑO_ACCIDENTE, y=Freq, fill=GRAVEDAD_ACCIDENTE)) +
-  geom_bar(stat="identity")
+gravedadAccidentes = datosAccidentes  %>%  select(AÑO_ACCIDENTE, GRAVEDAD_ACCIDENTE) %>%  group_by(GRAVEDAD_ACCIDENTE)  
+tablaGravedadAccidentes = table(gravedadAccidentes)
+gravedadPorAnios = as.data.frame(tablaGravedadAccidentes)
+knitr::kable(tablaGravedadAccidentes, caption = "Tabla 5: Gravedad de accidentes por año")
 ```
 
-# Como se distribuye los accidentes diseño vía
+
+```{r}
+ggplot(data=gravedadPorAnios, aes(x=AÑO_ACCIDENTE, y=Freq, fill=GRAVEDAD_ACCIDENTE)) +
+  geom_bar(stat="identity") +
+  labs(x = "Año Accidente", y = "Cantidad de accidentes") +
+  ggtitle("Cantidad de accidentes por gravedad")
+```
+
+# ¿Cómo se distribuye los accidentes diseño vía?
+
+Los lugares donde ocurre la mayor cantidad de accidentes 
+es por tramo de vía, esto como podemos ver es compatible
+con lo que se mencionó sobre las zonas con mayor número de 
+accidentes, estas zonas se caracterizan por tener grandes vías,
+que es donde suelen ocurrir los accidentes.
+
+Algo sorprendente de los datos es que la intersección y los lotes
+tienen una cantidad de accidentes parecida, se esperaría que en los 
+lotes no existieran tantos accidentes pero los datos nos dicen lo 
+contrario, ir por una intersección es tan accidentado como en un lote. 
+Otra cosa que yo no me esperaba es que las glorietas
+no tienen tantos accidentes, en realidad estas vías son de lo más seguras.
+
+En conclusión las vías son las rutas más peligrosas, las intersecciones son 
+tan peligrosas como los lotes y las glorietas son vías más seguras.
+
+
 
 ```{r}
 clasesAccidente <- datosAccidentes %>% select(Diseño.Vía) %>% group_by(Diseño.Vía) %>% count %>% arrange(desc(n))
 headClasesAccidente = head(clasesAccidente, n=5)
-print(clasesAccidente)
+knitr::kable(clasesAccidente, caption = "Tabla 6 accidentes por tipo de vía", col.names = c("Diseño vía", "Numero de accidentes"))
+```
+
+
+```{r}
 ggplot(headClasesAccidente, aes(x=reorder(Diseño.Vía,desc(n)), y=n)) + 
       geom_bar(stat = "identity", fill = c("#530E53", "#6F256F", "#8A458A", "#565695", "#8080B3"), color = "white" ) +
-      labs(x = "Barrio", y = "Cantidad de accidentes")  +
+      labs(x = "Diseño via", y = "Cantidad de accidentes")  +
       geom_text(aes(label=n), vjust=-0.5, color="black",
-            position = position_dodge(0.9), size=3.5) 
+            position = position_dodge(0.9), size=3.5) +
+    ggtitle("Cantidad de accidentes por diseño de vía")
       
 ```
 
 
+# Recomendaciones
 
+Para la recolección de los datos sería ideal estandarizar
+un formato para las fechas, debido a que esto puede ser un campo
+que se presta para muchas inconsistencias, que existan otras categorías 
+para clasificar las clases de accidente, debería averiguarse como 
+se puede subdividir la categoría otros para obtener más información de los datos.
+
+
+También sería deseable que los accidentes se pusieran las
+coordenadas de donde ocurrieron, ya que la ubicación por zonas o direcciones 
+a veces se presta para inconsistencias, con la toma de coordenadas 
+se podría mejorar la calidad de esta información.
+
+Se pueden tomar medidas para reducir la accidentalidad, 
+debería haber un control más estricto de las vías principales en las 
+horas que todos entran a trabajar, debido a que es el momento y lugares
+donde más accidentes ocurren en la ciudad, garantizando un mejor control 
+de las zonas, se reduciría los accidentes y ayudaría a mejorar el tráfico.
+
+# Conclusiones
+
+Se pueden tomar medidas correctivas en la ciudad para prevenir la accidentalidad,
+se identifica que las vías son los lugares con mayor accidentalidad, 
+sobre todo en la zona centro a las 7 de la mañana y 5 de la tarde, 
+que son los momentos donde ocurren la mayor cantidad de accidentes;
+haciendo un control de las medidas de seguridad a esas horas
+se podría mejorar la accidentalidad en la zona de extras se 
+pueden encontrar algunos puntos que en los que se debería hacer control. 
+
+Un balance positivo es que a pesar de que la mayoría de accidentes
+los motociclistas terminan heridos, hay muy pocos casos en donde mueren, 
+lo cual indica que algo se está haciendo bien, ya que la proporción de
+los que terminan muertos es del menos del 1%.
 
 
 
 # Extra
 
+## Mapas sobre la accidentalidad
+
+Tenemos dos mapas, en el primero tenemos los 100 puntos donde ocurren más accidentes, 
+en el segundo tenemos los 500 puntos donde ocurren más accidentes; 
+los 100 primeros ocupan 38.300 accidentes y los 500 primeros ocupan 
+115.312 accidentes (el 85% de los datos). Las gráficas también indican los lugares con más frecuencia.
+
+
+Podemos ver en el mapa con los 100 puntos con más accidentes que hay una tendencia 
+clara a que los accidentes ocurran en la regional, cosa que nos ayuda a ver que la 
+conclusión de que los accidentes ocurren en las grandes vías parece cierta, 
+además de que gran parte se concentran por el centro de la ciudad por el punto azul claro que se ve al lado del cerro el volador.
+
+De los 500 lugares con más accidentes podemos ver que la vía paralela por la 80 
+también capta gran cantidad de los accidentes junto con la carrera 43, esta 
+tendencia se empezó a dibujar con las primeras coordenadas y se aumenta en este mapa, 
+aunque inevitablemente la que más accidentes se lleva es la avenida regional especialmente en el centro, 
+otra cosa que vale la pena ver, son los puntos dispersos en el mapa que no necesariamente 
+están en la regional o en la 80, estos también pueden ser puntos estratégicos para reducir los accidentes.
+
+En conclusión el mapa de los 100 puntos donde ocurren más accidentes, 
+podría indicar los lugares donde se podría empezar a controlar la accidentalidad, 
+ya que estos son donde se concentran buena parte de los accidentes y los 500 puntos
+(donde se concentran el 85% de los datos) muestran claramente las tendencias de los accidentes que son la regional, la 80 y la 43.
+
+
+
+### Los 100 lugares con mas accidentes
 
 ```{r}
-library("sf")
+mapaMedellin <- get_map(getbb("Medellin"), source = "osm")
+```
+
+
+```{r}
+coordenadas <- datosAccidentes %>%  subset(longitud!= 0 & latitud != 0) %>% select(longitud, latitud, ZONA) %>% group_by(longitud, latitud) %>% mutate(count=n()) %>% distinct()
+los100LugaresConMasAccidentes <- head(coordenadas[order(coordenadas$count,  decreasing =TRUE),], 100)
 ```
 
 ```{r}
-library(OpenStreetMap)
-library(osmdata)
-```
+los100LugaresConMasAccidentes <- st_as_sf(los100LugaresConMasAccidentes, coords = c("longitud", "latitud"))
 
-```{r}
-library(ggmap)
-```
-
-
-
-```{r}
-mapa_envig <- get_map(getbb("Medellin"), source = "osm")
-```
-
-
-
-
-
-```{r}
-prueba <- datosAccidentes %>%  subset(longitud!= 0 & latitud != 0) %>% select(longitud, latitud, ZONA) %>% group_by(longitud, latitud) %>% mutate(count=n()) %>% distinct()
-#print(count(datosAccidentes %>% subset(longitud == 0 & latitud == 0)))
-#sum(prueba$count)
-prueba <- head(prueba[order(prueba$count,  decreasing =TRUE),], 500)
-#print(prueba[order(prueba$count,  decreasing =TRUE),])
-```
-```{r}
-print(sum(prueba$count))
-```
-
-```{r}
-puntos <- st_as_sf(prueba, coords = c("longitud", "latitud"))
-
-ggmap(mapa_envig) +
-  geom_sf(data = puntos ,
+ggmap(mapaMedellin) +
+  geom_sf(data = los100LugaresConMasAccidentes ,
           inherit.aes = FALSE, 
-          aes(color=count)) 
+          aes(color=count)) +
+  ggtitle("Los 100 lugares con más accidentes") +
+  xlab("Longitud") + 
+  ylab("Latitud")
 ```
 
 
 ```{r}
-prueba1 <- datosAccidentes %>%  subset(longitud!= 0 & latitud != 0) %>% select(longitud, latitud, ZONA) %>% group_by(longitud, latitud) %>% mutate(count=n()) %>% distinct()
-#print(count(datosAccidentes %>% subset(longitud == 0 & latitud == 0)))
-#sum(prueba$count)
-prueba1 <- head(prueba[order(prueba$count,  decreasing =TRUE),], 100)
-#print(prueba[order(prueba$count,  decreasing =TRUE),])
+print(paste("La cantidad de accidentes en el mapa anterior son:",  sum(los100LugaresConMasAccidentes$count)))
 ```
 
-```{r}
-puntos1 <- st_as_sf(prueba1, coords = c("longitud", "latitud"))
 
-ggmap(mapa_envig) +
-  geom_sf(data = puntos1 ,
+### Los 500 lugares con mas accidentes
+
+```{r}
+los500LugaresConMasAccidentes <- head(coordenadas[order(coordenadas$count,  decreasing =TRUE),], 500)
+```
+
+
+```{r}
+los500LugaresConMasAccidentes <- st_as_sf(los500LugaresConMasAccidentes, coords = c("longitud", "latitud"))
+
+ggmap(mapaMedellin) +
+  geom_sf(data = los500LugaresConMasAccidentes ,
           inherit.aes = FALSE, 
-          aes(color=count)) 
+          aes(color=count)) +
+    ggtitle("Los 500 lugares con más accidentes") +
+    xlab("Longitud") + 
+    ylab("Latitud")
+    
+```
+
+```{r}
+print(paste("La cantidad de accidentes en el mapa anterior son:", sum(los500LugaresConMasAccidentes$count)))
 ```
 
 
