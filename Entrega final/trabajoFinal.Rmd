@@ -1,0 +1,114 @@
+---
+title: "Trabajo Final"
+author: "Jean Paul Yepes"
+output: html_document
+    
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+
+```{r}
+resultadosEncuesta <- read.csv("ResultadosEncuesta.csv",
+                    encoding = "UTF-8",
+                    stringsAsFactors = FALSE)
+```
+
+```{r}
+createDirectory <- function ()
+{
+  if (dir.exists("img"))
+  {
+    unlink("img", recursive = TRUE)
+  }
+  dir.create("img")
+}
+createDirectory()
+```
+
+
+
+```{r, include=FALSE}
+downloadImages <- function(resultadosEncuesta)
+{
+  numberOfImage = 1;
+  for (imageURL in resultadosEncuesta$En.el.rectángulo.blanco.a.continuación..ponga.50.puntos.de.manera.aleatoria)
+  {
+    
+    download.file(imageURL, destfile = sprintf("img/%03d.png", numberOfImage), method = "wget")
+    numberOfImage = numberOfImage + 1;
+  }
+}
+
+downloadImages(resultadosEncuesta)
+```
+
+
+```{r}
+library(raster)
+
+ 
+r <- raster(nrow=18, ncol=36)
+values(r) <- runif(ncell(r)) * 10
+r[r>8] <- NA
+p <- rasterToPoints(r)
+p <- rasterToPoints(r, fun=function(x){x>6})
+plot(r)
+points(p)
+
+```
+
+```{r}
+
+```
+
+
+
+```{python3}
+import cv2
+# read image through command line
+img = cv2.imread("img/058.png")
+
+# convert the image to grayscale
+gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+# convert the grayscale image to binary image
+ret,thresh = cv2.threshold(gray_image,200,255,0)
+
+# find contours in the binary image
+contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+#print(contours[:10])
+#print(len(contours))
+#print(hierarchy)
+print(len(contours))
+print(contours[1])
+for c in contours[1:]:
+   # calculate moments for each contour
+   M = cv2.moments(c)
+
+   # calculate x,y coordinate of center
+   if M["m00"] != 0:
+      cX = int(M["m10"] / M["m00"])
+      cY = int(M["m01"] / M["m00"])
+   else:
+      continue
+
+   print(cX, cY)
+   cv2.circle(img, (cX, cY), 1, (255, 0, 0), -1)
+   #cv2.putText(img, "centroid", (cX - 25, cY - 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+
+# display the image
+cv2.imshow("Image", img)
+cv2.imshow("Black and white", thresh)
+cv2.waitKey(0)
+
+```
+
+
+
+
