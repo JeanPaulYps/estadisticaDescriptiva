@@ -12,6 +12,10 @@ knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE)
 ```
 
+```{r}
+library(tidyverse)
+```
+
 
 ```{r}
 resultadosEncuesta <- read.csv("ResultadosEncuesta.csv",
@@ -113,7 +117,7 @@ cv2.waitKey(0)
 
 ```{r}
 library("Rvision")
-image = image(filename = "img/063.png")
+image = image(filename = "img/062.png")
 dots = simpleBlobDetector(
   image,
   min_threshold = 1,
@@ -147,5 +151,109 @@ plot(dots, pch = 1)
 
 
 
+
+```{r}
+library(tidyverse)
+print(dots %>% select(x,y))
+#heatmap(as.matrix(dots %>% select(x,y) ), scale= "row" )
+test <- expand.grid()
+ggplot(dots, aes(x, y, fill= size)) + 
+  geom_tile()
+```
+
+
+```{r}
+x <- as.character(seq(50,600,50))
+y <- as.character(seq(50,600,50))
+df <- expand.grid(x,y)
+df$rand =sample(100, size = nrow(df), replace = TRUE)
+df
+```
+
+```{r}
+
+
+ggplot(df, aes(Var1, Var2)) + 
+  geom_tile(aes(fill=rand)) +
+  scale_fill_gradient(low="white", high="blue")
+```
+
+
+```{r}
+getCoordsInImage <- function(imageFileToDetect)
+{
+  dots = simpleBlobDetector(
+      imageFileToDetect,
+      min_threshold = 1,
+      max_threshold = 255,
+      threshold_step = 10,
+      min_repeatability = 2,
+      min_dist_between_blobs = 10,
+      filter_by_area = TRUE,
+      min_area = 10,
+      max_area = 5000,
+      filter_by_color = TRUE,
+      blob_color = 0,
+      filter_by_circularity = FALSE,
+      min_circularity = 0.8,
+      max_circularity = Inf,
+      filter_by_convexity = TRUE,
+      min_convexity = 0.85,
+      max_convexity = Inf,
+      filter_by_inertia = TRUE,
+      min_inertia_ratio = 0.1,
+      max_inertia_ratio = Inf
+  )
+  return(dots);
+}
+```
+
+
+
+```{r}
+obtainPointsLocation <- function()
+{
+  pointsLocation = NULL;
+  for (imageFileName in dir("img/"))
+  {
+    rowNumber = as.integer(str_remove(imageFileName, ".png"));
+    imageFile = image(filename = paste("img/", imageFileName, sep ="") );
+    pointsLocationOfImage = getCoordsInImage(imageFile);
+    if (nrow(pointsLocationOfImage) <= 40 || nrow(pointsLocationOfImage) >= 60)
+    {
+      next;
+    }
+    pointsLocationOfImage$ImageRow = rowNumber;
+    pointsLocation <- rbind(pointsLocation, pointsLocationOfImage);
+  }
+  return (pointsLocation);
+}
+res = obtainPointsLocation()
+```
+
+
+```{r}
+
+ xy <- matrix(runif(40), ncol=2)
+print(xy)
+
+
+```
+
+```{r}
+library(spatstat)
+pointsToRipley <- ppp(res$x, -res$y, c(1, 600), c(-600, 1))
+kDeRipley <- Kest(pointsToRipley)
+plot(kDeRipley)
+
+```
+
+```{r}
+intervalo_conf <- envelope(pointsToRipley, nsim=7000)
+```
+
+```{r}
+plot(intervalo_conf)
+```
 
 
