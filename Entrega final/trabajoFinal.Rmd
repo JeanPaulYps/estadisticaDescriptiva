@@ -52,69 +52,6 @@ downloadImages <- function(resultadosEncuesta)
 downloadImages(resultadosEncuesta)
 ```
 
-
-```{r}
-library(raster)
-
- 
-r <- raster(nrow=18, ncol=36)
-values(r) <- runif(ncell(r)) * 10
-r[r>8] <- NA
-p <- rasterToPoints(r)
-p <- rasterToPoints(r, fun=function(x){x>6})
-plot(r)
-points(p)
-
-```
-
-```{r}
-
-```
-
-
-
-```{python3}
-import cv2
-# read image through command line
-img = cv2.imread("img/058.png")
-
-# convert the image to grayscale
-gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-# convert the grayscale image to binary image
-ret,thresh = cv2.threshold(gray_image,200,255,0)
-
-# find contours in the binary image
-contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-#print(contours[:10])
-#print(len(contours))
-#print(hierarchy)
-print(len(contours))
-print(contours[1])
-for c in contours[1:]:
-   # calculate moments for each contour
-   M = cv2.moments(c)
-
-   # calculate x,y coordinate of center
-   if M["m00"] != 0:
-      cX = int(M["m10"] / M["m00"])
-      cY = int(M["m01"] / M["m00"])
-   else:
-      continue
-
-   print(cX, cY)
-   cv2.circle(img, (cX, cY), 1, (255, 0, 0), -1)
-   #cv2.putText(img, "centroid", (cX - 25, cY - 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-
-# display the image
-cv2.imshow("Image", img)
-cv2.imshow("Black and white", thresh)
-cv2.waitKey(0)
-
-```
-
-
-
 ```{r}
 library("Rvision")
 image = image(filename = "img/062.png")
@@ -170,13 +107,7 @@ df$rand =sample(100, size = nrow(df), replace = TRUE)
 df
 ```
 
-```{r}
 
-
-ggplot(df, aes(Var1, Var2)) + 
-  geom_tile(aes(fill=rand)) +
-  scale_fill_gradient(low="white", high="blue")
-```
 
 
 ```{r}
@@ -226,6 +157,7 @@ obtainPointsLocation <- function()
     pointsLocationOfImage$ImageRow = rowNumber;
     pointsLocation <- rbind(pointsLocation, pointsLocationOfImage);
   }
+  pointsLocation$y = 600 - pointsLocation$y;
   return (pointsLocation);
 }
 res = obtainPointsLocation()
@@ -242,14 +174,14 @@ print(xy)
 
 ```{r}
 library(spatstat)
-pointsToRipley <- ppp(res$x, -res$y, c(1, 600), c(-600, 1))
+pointsToRipley <- ppp(res$x, res$y, c(1, 600), c(1,600))
 kDeRipley <- Kest(pointsToRipley)
 plot(kDeRipley)
 
 ```
 
 ```{r}
-intervalo_conf <- envelope(pointsToRipley, nsim=7000)
+intervalo_conf <- envelope(pointsToRipley, nsim=100)
 ```
 
 ```{r}
@@ -257,3 +189,67 @@ plot(intervalo_conf)
 ```
 
 
+
+```{r}
+xy <- res %>% select(x,y)
+xy$x = as.integer(xy$x)
+xy$y =as.integer(xy$y)
+persp(density(pointsToRipley), theta=30, phi=30)
+```
+
+```{r}
+plot(density(pointsToRipley))
+points(xy)
+```
+  
+```{r}
+summary(pointsToRipley)
+```
+```{r}
+print(head(pointsToRipley$y, n=200))
+```
+  
+```{r}
+xy$y = 600 + xy$y
+plot(xy)
+```
+  
+  
+```{r}
+imagen1 <- res %>% filter(ImageRow == 1)
+```
+
+```{r}
+plot(imagen1)
+```
+```{r}
+plot(density( ppp(imagen1$x, imagen1$y, c(1, 600), c(1, 600))))
+```
+```{r}
+imagen1Arreglada = imagen1 %>% mutate(y = 600 - y)
+```
+
+
+```{r}
+xmin = 0;
+xmax = 600;
+ymin = 0;
+ymax = 600;
+PruebaPuntos = ppp(imagen1Arreglada$x, imagen1Arreglada$y, c(1, 600), c(1, 600))
+
+plot(density(PruebaPuntos),  xlim=c(xmin, xmax), ylim=c(ymin, ymax) )
+axis(2, at=seq(0,600,100),labels=seq(0,600,100), col.axis="black", las=2)
+axis(1, at=seq(0,600,100),labels=seq(0,600,100), col.axis="black", las=2)
+points(PruebaPuntos)
+
+``` 
+
+```{r}
+coordenadasPuntos = res
+```
+
+```{r}
+saveRDS(coordenadasPuntos, file = "coordenadasPuntos.Rdata")
+```
+
+  
