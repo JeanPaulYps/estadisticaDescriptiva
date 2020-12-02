@@ -1,8 +1,9 @@
 ---
 title: "Trabajo Final"
-author: "Jean Paul Yepes"
-output: html_document
-    
+author: "Jean Paul Yepes, Evelyn Bermudez Bedoya, Paula Andrea Cifuentes David, Alejandro Santamaria Espinosa, Elver Tunubala Yalanda"
+output: 
+  html_document:
+    toc: true
 ---
 
 
@@ -14,6 +15,8 @@ knitr::opts_chunk$set(echo = FALSE,
 
 ```{r}
 library(tidyverse)
+library("Rvision")
+library(spatstat)
 ```
 
 
@@ -23,38 +26,21 @@ resultadosEncuesta <- read.csv("ResultadosEncuesta.csv",
                     stringsAsFactors = FALSE)
 ```
 
-```{r}
-createDirectory <- function ()
-{
-  if (dir.exists("img"))
-  {
-    unlink("img", recursive = TRUE)
-  }
-  dir.create("img")
-}
-createDirectory()
-```
+# Obtención de resultados con los puntos dibujados
 
+En esta sección se mostraran los resultados de los puntos dibujados, se mostrará
+la transformación de los puntos a coordenadas, resultados K de Ripley, elaboración
+de un puntaje para mostrar las personas que tuvieron un comportamiento mas aleatorio. 
 
+# Muestra de los resultados de detección de puntos
 
-```{r, include=FALSE}
-downloadImages <- function(resultadosEncuesta)
-{
-  numberOfImage = 1;
-  for (imageURL in resultadosEncuesta$En.el.rectángulo.blanco.a.continuación..ponga.50.puntos.de.manera.aleatoria)
-  {
-    
-    download.file(imageURL, destfile = sprintf("img/%03d.png", numberOfImage), method = "wget")
-    numberOfImage = numberOfImage + 1;
-  }
-}
-
-downloadImages(resultadosEncuesta)
-```
+En esta imagen se ve la precisión que se alcanza al obtener las coordenadas los puntos, se puede ver
+que los resultados coinciden con lo que se espera, localiza correctamente la ubicación y la cantidad.
+En esta etapa de obtención se eliminaron algunas imagenes en las cuales los puntos no estaban claramente
+diferenciados, o que los encuestados dibujaron mal, con lo que esta muestra cuenta con 53 imágenes.
 
 ```{r}
-library("Rvision")
-image = image(filename = "img/062.png")
+image = image(filename = "img/001.png")
 dots = simpleBlobDetector(
   image,
   min_threshold = 1,
@@ -79,36 +65,13 @@ dots = simpleBlobDetector(
 )
 plot(image, main = "x")
 plot(dots, pch = 1)
-#points(dots$x, dots$y)
-```
-```{r}
-
-
 ```
 
+# Resultados K de Ripley
 
-
-
-```{r}
-library(tidyverse)
-print(dots %>% select(x,y))
-#heatmap(as.matrix(dots %>% select(x,y) ), scale= "row" )
-test <- expand.grid()
-ggplot(dots, aes(x, y, fill= size)) + 
-  geom_tile()
-```
-
-
-```{r}
-x <- as.character(seq(50,600,50))
-y <- as.character(seq(50,600,50))
-df <- expand.grid(x,y)
-df$rand =sample(100, size = nrow(df), replace = TRUE)
-df
-```
-
-
-
+Del intervalo de confianza se puede ver que la tendencia de las personas es a agrupar los puntos que
+dibujan, por lo tanto no es un comportamiento aleatorio, sino que se rige por un patrón que se ve 
+evidenciado en el resultado.
 
 ```{r}
 getCoordsInImage <- function(imageFileToDetect)
@@ -141,7 +104,7 @@ getCoordsInImage <- function(imageFileToDetect)
 
 
 
-```{r}
+```{r, include=FALSE}
 obtainPointsLocation <- function()
 {
   pointsLocation = NULL;
@@ -157,99 +120,429 @@ obtainPointsLocation <- function()
     pointsLocationOfImage$ImageRow = rowNumber;
     pointsLocation <- rbind(pointsLocation, pointsLocationOfImage);
   }
-  pointsLocation$y = 600 - pointsLocation$y;
+  pointsLocation$y = pointsLocation$y;
   return (pointsLocation);
 }
-res = obtainPointsLocation()
+coordenadasPuntos = obtainPointsLocation()
 ```
 
 
 ```{r}
 
- xy <- matrix(runif(40), ncol=2)
-print(xy)
-
-
-```
-
-```{r}
-library(spatstat)
-pointsToRipley <- ppp(res$x, res$y, c(1, 600), c(1,600))
+pointsToRipley <- ppp(coordenadasPuntos$x, coordenadasPuntos$y, c(1, 600), c(1,600))
 kDeRipley <- Kest(pointsToRipley)
-plot(kDeRipley)
+plot(kDeRipley, main="Resultados K de Ripley", xlab="Tamaño del radio del circulo para la muestra", ylab="Función K de ripley")
 
 ```
 
-```{r}
+```{r, include=FALSE}
+set.seed(543)
 intervalo_conf <- envelope(pointsToRipley, nsim=100)
 ```
 
 ```{r}
-plot(intervalo_conf)
+plot(intervalo_conf, main="Intervalo Confianza de K de Ripley", xlab="Tamaño del radio del circulo para la muestra", ylab="Función K de ripley")
 ```
 
+# Puntos dibujados por los encuestados
 
-
-```{r}
-xy <- res %>% select(x,y)
-xy$x = as.integer(xy$x)
-xy$y =as.integer(xy$y)
-persp(density(pointsToRipley), theta=30, phi=30)
-```
+Viendo lo que las personas dibujaron en su concepto puntos aleatorios, se puede ver que esto
+no es así, ellos siguen un patrón , ellos suelen dibujar los puntos en la mitad izquierda y 
+con mas intensidad en la esquina izquierda, esto quiere decir que los humanos somos malos 
+emulando un comportamiento aleatorio.
 
 ```{r}
-plot(density(pointsToRipley))
+xy <- coordenadasPuntos %>% select(x,y)
+plot(density(pointsToRipley), main="Distribución de los puntos hechos por los encuestados")
 points(xy)
 ```
-  
-```{r}
-summary(pointsToRipley)
-```
-```{r}
-print(head(pointsToRipley$y, n=200))
-```
-  
-```{r}
-xy$y = 600 + xy$y
-plot(xy)
-```
-  
-  
-```{r}
-imagen1 <- res %>% filter(ImageRow == 1)
-```
+
+# Métrica definida para aletoriedad
+
+Para calcular el puntaje de aletoriedad, se hizo por la suma de las distancias verticales, en los resultados de 
+los intervalos de confianza individuales hechos en cada K de Ripley, con simulaciones hechas por la misma 
+semilla para garantizar que se obtengan los mismos resultados. En esta métrica 0 es un comportamiento aleatorio,
+un resultado positivo es que se tiende al agrupamiento y un resultado negativo es que se tiende a la uniformidad.
+
 
 ```{r}
-plot(imagen1)
-```
-```{r}
-plot(density( ppp(imagen1$x, imagen1$y, c(1, 600), c(1, 600))))
-```
-```{r}
-imagen1Arreglada = imagen1 %>% mutate(y = 600 - y)
+plot(image(filename = "CalculoPuntaje.png"))
 ```
 
 
 ```{r}
-xmin = 0;
-xmax = 600;
-ymin = 0;
-ymax = 600;
-PruebaPuntos = ppp(imagen1Arreglada$x, imagen1Arreglada$y, c(1, 600), c(1, 600))
+getIntervaloConf = function (numeroImagen)
+{
+  set.seed(543)
+  coordenadas <- subset(coordenadasPuntos, ImageRow == numeroImagen)
+  pointsToRipley <- ppp(coordenadas$x, coordenadas$y, c(1, 600), c(1,600))
+  kDeRipley <- Kest(pointsToRipley)
+  intervalo_conf <- envelope(pointsToRipley, nsim=100)  
+}
 
-plot(density(PruebaPuntos),  xlim=c(xmin, xmax), ylim=c(ymin, ymax) )
-axis(2, at=seq(0,600,100),labels=seq(0,600,100), col.axis="black", las=2)
-axis(1, at=seq(0,600,100),labels=seq(0,600,100), col.axis="black", las=2)
-points(PruebaPuntos)
-
-``` 
-
-```{r}
-coordenadasPuntos = res
 ```
 
+
 ```{r}
-saveRDS(coordenadasPuntos, file = "coordenadasPuntos.Rdata")
+calculateScoreOfImage = function (intervaloConf)
+{
+  score = c()
+  for (i in 1:nrow(intervaloConf))
+  {
+    limiteInferior = intervaloConf$lo[i] 
+    limiteSuperior = intervaloConf$hi[i]
+    observado = intervaloConf$obs[i]
+    if(observado >= limiteInferior &  observado <= limiteSuperior)
+    {
+      score = append(score, 0)
+    }
+    else
+    {
+      if (observado < limiteInferior)
+      {
+        score = append(score, observado - limiteInferior)
+      }
+      else
+      {
+        score = append(score, observado - limiteSuperior)
+      }
+    }
+  }
+  return(sum(score))
+}
+
 ```
 
-  
+
+```{r, include=FALSE}
+getScore = function (resultadosEncuesta, coordenadasPuntos){
+  score = c()
+  for (numRow in 1:nrow(resultadosEncuesta)){
+    if (any(coordenadasPuntos$ImageRow == numRow))
+    {
+      intervaloConf = getIntervaloConf(numRow)
+      score = append(score, calculateScoreOfImage(intervaloConf))
+    }
+    else
+    {
+      score = append(score, NA)
+    }
+  }
+  return (score)
+}
+score = getScore(resultadosEncuesta, coordenadasPuntos)
+```
+
+# Datos de las 5 personas mas aleatorias bajo esta metrica
+
+```{r}
+datosEncuestaConPuntaje = resultadosEncuesta
+datosEncuestaConPuntaje$score = score
+```
+
+
+```{r}
+personasMasAleatorias <- datosEncuestaConPuntaje %>% top_n(-5, abs(datosEncuestaConPuntaje$score) ) %>% select(-starts_with(c("En.el.rectángulo.blanco.a.continuación..ponga.50.puntos.de.manera.aleatoria", "Submission.Date"))) %>% arrange(abs(score))
+knitr::kable(personasMasAleatorias)
+```
+
+# Resultado K de Ripley persona mas aleatoria 
+
+```{r, include=FALSE}
+masAleatoria <- getIntervaloConf(32)
+```
+
+
+```{r}
+plot(masAleatoria, main="Intervalos de confianza persona mas aleatoria")
+```
+
+# Puntos dibujados por la persona mas aleatoria
+
+```{r}
+plot(image("img/032.png"))
+```
+
+
+# Caracterización de la muestra
+
+## Género
+
+Esta fue una pregunta que se le realizó a las personas para saber que cantidad
+de hombres y mujeres realizaron la encuesta, en la cuál se obtuvieron los 
+siguientes resultados 
+
+### Tabla de frecuencias 
+```{r}
+t1<- table(resultadosEncuesta$`Seleccione.su.género`)
+t1
+```
+### Tabla de frecuencias de porcentajes
+
+```{r}
+t1/sum(t1)*100
+```
+
+### Gráfica
+
+```{r}
+bp1<-barplot(t1,
+             las = 1, cex.names = 0.5,
+             main = ("Género"),
+             ylim = c(0, 100),
+             col = c("chocolate4", "burlywood2"),
+             legend.text = c("Femenino", "Masculino"),
+             names.arg = "",
+             xlab = "",
+             ylab = "",
+             axes = FALSE,
+             add = FALSE)
+            
+
+axis(2, at = c(0, 10, 20, 30, 40, 50),
+     las = 1)
+     text(bp1, c(40, 30) + 1, 
+     labels = paste(formatC(round(t1, 1),
+                            digits = 2, decimal.mark = ",",
+                            big.mark = ".")
+                    ))
+```
+
+En esta gráfica podemos observar que en total fueron 63 personas las que 
+pudieron contestar la encuesta, repartidos de la siguiente manera: 37 mujeres, 
+y 26 hombres.
+
+
+
+## ¿Cuantos años tiene?
+
+Esta fue una de las preguntas que realizamos en la encuesta y como se observar, tuvimos personas de casi todas la edades, esta,no fue dirigida solo hacia un grupo de personas sino que tuvimos encuenta apersonas mayores.
+
+### Tabla de frecuencias 
+
+```{r}
+P2<- table(resultadosEncuesta$X.Cuantos.años.tiene.)
+P2
+```
+
+### Tabla de frecuencias de porcentajes
+
+```{r}
+P2/sum(P2)*100
+```
+
+### Gráfica
+
+
+```{r}
+ggplot(data= as.data.frame(P2), aes(x=Var1, y=Freq)) +
+  geom_bar(stat="identity", width=0.5, fill = "steelblue", color = "steelblue") +
+  labs(x="Años", y = "Frecuencia")
+```
+
+## Nivel de estudio
+
+En esta pregunta se busca saber de las 63 personas que respondieron la encuesta
+que nivel de estudio tienen, obteniendo los siguientes resultados:
+
+### Tabla de frecuencias 
+
+```{r}
+t2<- table(resultadosEncuesta$`Seleccione.un.nivel.de.estudio`)
+t2
+```
+
+### Tabla de frecuencias de porcentajes
+
+```{r}
+t2/sum(t2)*100
+
+```
+### Gráfica
+
+```{r}
+bp2<-barplot(t2,
+             las = 1, cex.names = 0.5,
+             main = ("Nivel de estudio"),
+             ylim = c(0, 100),
+             col = c("chocolate4", "burlywood2", "darkkhaki", "darkolivegreen4",
+                     "darkolivegreen", "darkorange3", "lightpink2"),
+             legend.text = c("Bachillerato", "Especialización", "Posgrado", "Pregado", "Primaria", "Técnica", "Tecnología"),
+             names.arg = "",
+             xlab = "",
+             ylab = "",
+             axes = FALSE,
+             add = FALSE)
+            
+
+axis(2, at = c(0, 10, 20, 30, 40, 50),
+     las = 1)
+     text(bp2, c(15, 5, 5, 31, 4, 13, 15) + 1, 
+     labels = paste(formatC(round(t2, 1),
+                            digits = 2, decimal.mark = ",",
+                            big.mark = ".")
+                    ))
+```
+
+La mayor parte de las personas encuestadas son de pregrado con un total de 27 
+personas, seguido por bachillerato y tecnologia, con un total de 11 personas
+cada una, y la de menor cantidad fue una persona que tiene una especialización. 
+
+## Área de conocimiento
+
+### Tabla de frecuencias 
+
+```{r}
+t1 <- sort(table(resultadosEncuesta$Seleccione.un.área.del.conocimiento),decreasing=TRUE)
+t1
+```
+
+### Tabla de frecuencias de porcentajes
+
+```{r}
+t2 <- t1/sum(t1) * 100
+t2
+```
+
+### Gráfica
+
+```{r fig.height = 8, fig.width =8}
+parametros_anteriores <- par(no.readonly = TRUE)
+par ( mar = parametros_anteriores$mar + c(12,0,0,0))
+par(bg="LIGHTYELLOW")
+t3 <- barplot(t1,las = 2,
+             
+             axes = FALSE,
+             ylim = c(0,30),
+             border = "#000000", density = c(110, 100, 90, 80, 70, 60, 50, 40),
+             col= "salmon")
+
+title("AREA DE CONOCIMIENTO",
+      col.main = "#696969")
+
+
+text(t3, c(28,9,9,6,5,4,4,4,3),
+     labels = paste(round(t2,2), "%"))
+
+
+axis(2, at = c(0,5, 10, 15, 20, 25,30),
+     las = 1)
+abline(h= seq(30,30,20),col="red",lty=2)
+par(parametros_anteriores)
+```
+
+
+# Resultados
+
+## Resultados a la pregunta tenemos un destino escrito
+
+### Tabla de frecuencias 
+
+```{r}
+s1 <- sort(table(resultadosEncuesta$X.Cree.que.los.seres.humanos.tenemos.un.destino.escrito.),decreasing=TRUE)
+s1
+```
+### Tabla de frecuencias de porcentajes
+
+```{r}
+s2 <- s1/sum(s1) * 100
+s2
+```
+### Gráfica
+
+```{r fig.height = 8, fig.width =8}
+parametros_anteriores <- par(no.readonly = TRUE)
+par ( mar = parametros_anteriores$mar + c(5,0,0,0))
+par(bg="MOCCASIN")
+s3 <- barplot(s1,las = 2,
+             
+             axes = FALSE,
+             ylim = c(0,37),
+             border = "#000000", density = c(110, 100, 90, 80, 70, 60, 50, 40),
+             col= "PALEVIOLETRED")
+
+title("DESTINO ESCRITO",
+      col.main = "#696969")
+
+
+text(s3, c(36,29),
+     labels = paste(round(s2,2), "%"))
+
+
+axis(2, at = c(0,5, 10, 15, 20, 25,30,37),
+     las = 1)
+abline(h= seq(37,37,20),col="red",lty=2)
+par(parametros_anteriores)
+```
+
+
+
+
+### Resultados se considera una persona religiosa
+
+
+### Tabla de frecuencias 
+
+```{r}
+t1 <-
+  table(resultadosEncuesta$X.Usted.se.considera.una.persona.religiosa.)
+t1
+```
+
+### Tabla de frecuencias de porcentajes
+
+```{r}
+p1 <-
+  t1/sum(t1) * 100
+p1
+```
+
+# Gráfica 
+
+```{r}
+bp <- barplot(p1,
+        las = 1,
+        main = "¿Usted se considera una persona religiosa?",
+        ylab = "Porcentaje (%)",
+        ylim = c(0,80),
+        col = c("lightgreen","lightblue"))
+text(bp, c(38, 70),
+     labels = paste(formatC(round(p1, 2),
+                            digits = 4, decimal.mark = ",",
+                            big.mark = "."),
+                    "%"))
+abline(h = seq(0,70,20),
+       col = "gray",
+       lty = 2)
+```
+
+
+
+## Resultados escoger un número de 0 al 9
+Esta fue una de las preguntas que se realizo en la encuesta, y como se puede observar en las tablas y en la grafica, el numero al azar que mas personas escogieron fue el 7, que es conocido como "el numero de la suerte"
+
+### Tabla de frecuencias 
+
+```{r}
+P1<- table(resultadosEncuesta$Escriba.un.numero.entre.0.9)
+P1
+```
+### Tabla de frecuencias de porcentajes
+
+```{r}
+P1/sum(P1)*100
+```
+
+### Gráfica
+```{r}
+P11<- barplot(P1,
+               main = "Digitos escogidos del 0 al 9",
+              col = "steelblue", border="steelblue", ylim = c(0,12) )
+
+
+
+```
+
+
+
+
